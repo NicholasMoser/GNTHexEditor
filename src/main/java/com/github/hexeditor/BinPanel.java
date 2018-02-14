@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.math.BigDecimal;
@@ -37,8 +38,9 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-public class BinPanel extends JPanel implements ActionListener, ItemListener, CaretListener, MouseListener {
-	
+public class BinPanel extends JPanel implements ActionListener, ItemListener, CaretListener, MouseListener
+{
+
 	private static final long serialVersionUID = -8680667391726401284L;
 	JTextField JTFile = new JTextField();
 	JProgressBar savePBar = new JProgressBar(0, 0, 0);
@@ -75,53 +77,104 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 	DecimalFormat fForm = new DecimalFormat("#.##########E0");
 	DecimalFormat dForm = new DecimalFormat("#.###################E0");
 
-	public BinPanel(boolean isApplet, String[] args) {
+	public BinPanel(boolean isApplet, String[] args)
+	{
 		this.isApplet = isApplet;
-		this.setLayout(new BorderLayout());
-		String[][] menuItems = new String[][] { { "File", "Open", "Save as ", "Close file (Q)", "Screen to Png" },
+		setLayout(new BorderLayout());
+
+		/*
+		 * Each of these menu items is correlated to the key code, mnemonic, and
+		 * modifier from the associated 2-dimensional array below.
+		 */
+		String[][] menuItems = new String[][]
+		{
+				{ "File", "Open", "Save as ", "Close file (Q)", "Screen to Png" },
 				{ "Edit", "Select All", "Undo (Z)", "Redo (Y)", "Cut (X)", "Copy", "Paste (V)", "Find",
 						"Insert (before)", "Delete" },
 				{ "View", "Goto", "Toggle position Mark", "Down to next mark", "Up to previous mark ", "Toggle caret ",
 						"Higher fontSize", "Lower fontSize", "Black/White background" },
-				{ "hidden", "Font +", "Font -" }, { "Help", "Toggle help" } };
-		int[][] var6 = new int[][] { { 70, 79, 83, 81, 80 }, { 69, 65, 90, 89, 88, 67, 86, 70, 155, 127 },
-				{ 86, 71, 77, 68, 85, 84, 107, 109, 87 }, { 178, 521, 45 }, { 72, 72 } };
-		int[][] var7 = new int[][] { { 70, 79, 83, 81, 80 }, { 69, 65, 90, 89, 88, 67, 86, 70, 73, 68 },
-				{ 86, 71, 77, 68, 85, 84, 72, 76, 87 }, { 72, 43, 45 }, { 72, 72 } };
-		int[][] var8 = new int[][] { { 0, 2, 2, 2, 2 }, { 0, 2, 2, 2, 2, 2, 2, 2, 0, 0 }, { 0, 2, 2, 2, 2, 2, 2, 2, 2 },
-				{ 0, 2, 2 }, { 0, 2 } };
+				{ "GNT", "GNT4 Translation" },
+				{ "hidden", "Font +", "Font -" },
+				{ "Help", "Toggle help" } };
+		// These mnemonics are keys that make an already visible menu item be chosen.
+		int[][] mnemonics = new int[][]
+		{
+				{ KeyEvent.VK_F, KeyEvent.VK_O, KeyEvent.VK_S, KeyEvent.VK_Q, KeyEvent.VK_P },
+				{ KeyEvent.VK_E, KeyEvent.VK_A, KeyEvent.VK_Z, KeyEvent.VK_Y, KeyEvent.VK_X, KeyEvent.VK_C,
+						KeyEvent.VK_V, KeyEvent.VK_F, KeyEvent.VK_I, KeyEvent.VK_D },
+				{ KeyEvent.VK_V, KeyEvent.VK_G, KeyEvent.VK_M, KeyEvent.VK_D, KeyEvent.VK_U, KeyEvent.VK_T,
+						KeyEvent.VK_H, KeyEvent.VK_L, KeyEvent.VK_W },
+				{ KeyEvent.VK_F1, KeyEvent.VK_F1 },
+				{ KeyEvent.VK_H, KeyEvent.VK_PLUS, KeyEvent.VK_MINUS },
+				{ KeyEvent.VK_H, KeyEvent.VK_H } };
+		// These key codes are combined with the modifiers to chose a menu item that is
+		// not visible.
+		int[][] keyCodes = new int[][]
+		{
+				{ KeyEvent.VK_F, KeyEvent.VK_O, KeyEvent.VK_S, KeyEvent.VK_Q, KeyEvent.VK_P },
+				{ KeyEvent.VK_E, KeyEvent.VK_A, KeyEvent.VK_Z, KeyEvent.VK_Y, KeyEvent.VK_X, KeyEvent.VK_C,
+						KeyEvent.VK_V, KeyEvent.VK_F, KeyEvent.VK_INSERT, KeyEvent.VK_DELETE },
+				{ KeyEvent.VK_V, KeyEvent.VK_G, KeyEvent.VK_M, KeyEvent.VK_D, KeyEvent.VK_U, KeyEvent.VK_T,
+						KeyEvent.VK_H, KeyEvent.VK_L, KeyEvent.VK_W },
+				{ KeyEvent.VK_F1, KeyEvent.VK_F1 },
+				{ KeyEvent.VK_H, KeyEvent.VK_PLUS, KeyEvent.VK_MINUS },
+				{ KeyEvent.VK_H, KeyEvent.VK_H } };
+		// These modifiers are combined with the key codes to chose a menu item that is
+		// not visible.
+		int[][] modifiers = new int[][]
+		{
+				{ 0, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK },
+				{ 0, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK,
+						ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, 0, 0 },
+				{ 0, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK,
+						ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK },
+				{ 0, ActionEvent.CTRL_MASK },
+				{ 0, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK },
+				{ 0, ActionEvent.CTRL_MASK } };
 
-		for (int var3 = 0; var3 < menuItems.length; ++var3) {
-			(this.menu = new JMenu(menuItems[var3][0])).setMnemonic(var7[var3][0]);
-			if (var3 != 0 || !isApplet) {
-				for (int var4 = 1; var4 < menuItems[var3].length; ++var4) {
-					this.menuItem = new JMenuItem(menuItems[var3][var4], var7[var3][var4]);
-					if (var3 != 4) {
-						this.menuItem.setAccelerator(KeyStroke.getKeyStroke(var6[var3][var4], var8[var3][var4]));
+		for (int groupIndex = 0; groupIndex < menuItems.length; ++groupIndex)
+		{
+			menu = new JMenu(menuItems[groupIndex][0]);
+			menu.setMnemonic(mnemonics[groupIndex][0]);
+			if (groupIndex != 0 || !isApplet)
+			{
+				for (int itemIndex = 1; itemIndex < menuItems[groupIndex].length; ++itemIndex)
+				{
+					menuItem = new JMenuItem(menuItems[groupIndex][itemIndex], mnemonics[groupIndex][itemIndex]);
+					if (groupIndex != 5)
+					{
+						menuItem.setAccelerator(KeyStroke.getKeyStroke(keyCodes[groupIndex][itemIndex],
+								modifiers[groupIndex][itemIndex]));
 					}
 
-					this.menuItem.addActionListener(this);
-					this.menu.add(this.menuItem);
-					if (var3 == 1 && (var4 == 1 || var4 == 3 || var4 == 6 || var4 == 7)
-							|| var3 == 2 && (var4 == 1 || var4 == 4 || var4 == 5 || var4 == 7)) {
+					menuItem.addActionListener(this);
+					menu.add(menuItem);
+
+					// Add separators after menu options that need them
+					if (groupIndex == 1 && (itemIndex == 1 || itemIndex == 3 || itemIndex == 6 || itemIndex == 7)
+							|| groupIndex == 2
+									&& (itemIndex == 1 || itemIndex == 4 || itemIndex == 5 || itemIndex == 7))
+					{
 						this.menu.addSeparator();
 					}
 				}
 			}
 
-			if (var3 != 3) {
-				this.menuBar.add(this.menu);
+			if (groupIndex != 4)
+			{
+				menuBar.add(menu);
 			}
 		}
 
-		UI.jRP.setJMenuBar(this.menuBar);
-		this.add(this.frameFile = this.frame(args));
-		this.dFS.setDecimalSeparator('.');
-		this.fForm.setDecimalFormatSymbols(this.dFS);
-		this.dForm.setDecimalFormatSymbols(this.dFS);
+		UI.rootPane.setJMenuBar(menuBar);
+		add(frameFile = frame(args));
+		dFS.setDecimalSeparator('.');
+		fForm.setDecimalFormatSymbols(dFS);
+		dForm.setDecimalFormatSymbols(dFS);
 	}
 
-	private JPanel frame(String[] var1) {
+	private JPanel frame(String[] var1)
+	{
 		this.savePBar.setStringPainted(true);
 		this.savePBar.setString("");
 		this.JTView.setEditable(false);
@@ -147,12 +200,15 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		++var3.gridy;
 		var2.add(this.stat, var3);
 		this.fJCB[2].setSelectedIndex(6);
-		if (var1 != null && 0 < var1.length) {
-			if (var1[0].equals("-slave")) {
+		if (var1 != null && 0 < var1.length)
+		{
+			if (var1[0].equals("-slave"))
+			{
 				(this.slave = new SlaveModule()).setDaemon(true);
 				this.slave.hexV = this.hexV;
 				this.slave.start();
-			} else {
+			} else
+			{
 				this.hexV.loadFile(new java.io.File(var1[0]));
 			}
 		}
@@ -160,34 +216,42 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		return var2;
 	}
 
-	public JComponent help() {
+	public JComponent help()
+	{
 		HelpWindow var1 = new HelpWindow("", false);
 		var1.setContentType("text/html");
 		String var2 = Locale.getDefault().getLanguage();
 		var2 = "ReadMe" + Character.toUpperCase(var2.charAt(0)) + var2.charAt(1) + ".htm";
 
-		try {
+		try
+		{
 			var1.eP.getEditorKit().read(
 					UI.class.getResource(UI.class.getResource(var2) == null ? "ReadMeEn.htm" : var2).openStream(),
 					var1.eP.getDocument(), 0);
 			var1.eP.getEditorKit().read(UI.class.getResource("shortKey.htm").openStream(), var1.eP.getDocument(),
 					var1.eP.getDocument().getLength());
-		} catch (Exception var4) {
+		} catch (Exception var4)
+		{
 			;
 		}
 
 		return var1;
 	}
 
-	private JPanel findPanel() {
-		String[][] var3 = new String[][] {
-				{ "BE", "LE" }, { "Signed", "Unsigned" }, { "Short (16)", "Int (32)", "Long (64)", "Float (32)",
-						"Double (64)", "Hexa", "ISO/CEI 8859-1", "UTF-8", "UTF-16" },
+	private JPanel findPanel()
+	{
+		String[][] var3 = new String[][]
+		{
+				{ "BE", "LE" },
+				{ "Signed", "Unsigned" },
+				{ "Short (16)", "Int (32)", "Long (64)", "Float (32)", "Double (64)", "Hexa", "ISO/CEI 8859-1", "UTF-8",
+						"UTF-16" },
 				{ "8 bits", "16 bits", "32 bits", "64 bits", "128 bits" },
 				{ "<html>Big-indian (natural order) or<br>Little-indian (Intel order).", "Only for integer",
 						"Data type",
 						"<html>Select \'64\' if you search a machine instruction for a 64 bits processor.<br>If you don\'t know, left it at \'8\'." },
-				{ "BE", "Unsigned", "ISO/CEI 8859-1", "128 bits" }, { "Next", "Hide" } };
+				{ "BE", "Unsigned", "ISO/CEI 8859-1", "128 bits" },
+				{ "Next", "Hide" } };
 		JPanel var4 = new JPanel(new GridBagLayout());
 		JPanel var5 = new JPanel(new GridBagLayout());
 		JPanel var6 = new JPanel(new GridBagLayout());
@@ -207,12 +271,14 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		var5.add(this.fJL);
 
 		int var1;
-		for (var1 = 0; var1 < this.fJCB.length; ++var1) {
+		for (var1 = 0; var1 < this.fJCB.length; ++var1)
+		{
 			this.fJCB[var1] = new JComboBox();
 			this.fJCB[var1].setPrototypeDisplayValue(var3[5][var1]);
 			this.fJCB[var1].setToolTipText(var3[4][var1]);
 
-			for (int var2 = 0; var2 < var3[var1].length; ++var2) {
+			for (int var2 = 0; var2 < var3[var1].length; ++var2)
+			{
 				this.fJCB[var1].addItem(var3[var1][var2]);
 			}
 
@@ -232,7 +298,8 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		var6.add(new JLabel("   From:"));
 		var6.add(this.fJTF[1] = new JTextField(15));
 
-		for (var1 = 0; var1 < this.fJB.length; ++var1) {
+		for (var1 = 0; var1 < this.fJB.length; ++var1)
+		{
 			this.fJB[var1] = new JButton(var3[6][var1]);
 			this.fJB[var1].setMargin(new Insets(3, 2, 3, 2));
 			this.fJB[var1].addActionListener(this);
@@ -242,19 +309,25 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		return var4;
 	}
 
-	private JPanel status() {
-		String[][] var1 = new String[][] { { "BE", "LE " },
+	private JPanel status()
+	{
+		String[][] var1 = new String[][]
+		{
+				{ "BE", "LE " },
 				{ "Binary", "Byte, signed/unsigned    ", "Short (16), signed", "Short (16), unsigned",
 						"Int (32), signed", "Int (32), unsigned", "Long (64), signed", "Long (64), unsigned",
 						"Float (32)", "Double (64)", "DOS-US/OEM-US/cp437", "UTF-8", "UTF-16" },
 				{ "<html>Big-Endian (natural order) or little-Endian (Intel order).",
 						"<html>Conversion rule for the data following the caret (shown here after)." } };
 
-		try {
-			if (!(this.cp437Available = Charset.isSupported("cp437"))) {
+		try
+		{
+			if (!(this.cp437Available = Charset.isSupported("cp437")))
+			{
 				var1[1][10] = "ISO/CEI 8859-1";
 			}
-		} catch (Exception var6) {
+		} catch (Exception var6)
+		{
 			;
 		}
 
@@ -264,12 +337,14 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		var5.fill = 1;
 		var5.insets = new Insets(0, 0, 0, 0);
 
-		for (int var2 = 0; var2 < this.viewCBox.length; ++var2) {
+		for (int var2 = 0; var2 < this.viewCBox.length; ++var2)
+		{
 			this.viewCBox[var2] = new JComboBox();
 			this.viewCBox[var2].setPrototypeDisplayValue(var1[var2][1]);
 			this.viewCBox[var2].setToolTipText(var1[2][var2]);
 
-			for (int var3 = 0; var3 < var1[var2].length; ++var3) {
+			for (int var3 = 0; var3 < var1[var2].length; ++var3)
+			{
 				this.viewCBox[var2].addItem(var1[var2][var3]);
 			}
 
@@ -296,25 +371,34 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		return var4;
 	}
 
-	public void actionPerformed(ActionEvent var1) {
-		if (var1.getSource() == this.fJRB) {
+	public void actionPerformed(ActionEvent var1)
+	{
+		if (var1.getSource() == this.fJRB)
+		{
 			this.checkFindEntry();
-		} else if (var1.getSource() == this.fJB[0] && this.fJB[0].getText() == "Next") {
+		} else if (var1.getSource() == this.fJB[0] && this.fJB[0].getText() == "Next")
+		{
 			this.hexV.find1();
-		} else if (var1.getSource() == this.fJB[0] && this.fJB[0].getText() == "Stop") {
+		} else if (var1.getSource() == this.fJB[0] && this.fJB[0].getText() == "Stop")
+		{
 			this.hexV.find.interrupt();
-		} else if (var1.getSource() == this.fJB[1]) {
+		} else if (var1.getSource() == this.fJB[1])
+		{
 			this.fP0.removeAll();
 			this.validate();
 			this.repaint();
 			this.hexV.slideScr(-1L, false);
-		} else if (var1.getSource().getClass().isInstance(new JMenuItem())) {
+		} else if (var1.getSource().getClass().isInstance(new JMenuItem()))
+		{
 			boolean var2 = ((JMenuItem) ((JMenuItem) var1.getSource())).getText().equals("Toggle help");
-			if (var2 || this.helpFlag) {
+			if (var2 || this.helpFlag)
+			{
 				this.removeAll();
-				if (this.helpFlag) {
+				if (this.helpFlag)
+				{
 					this.add(this.frameFile);
-				} else {
+				} else
+				{
 					this.add(this.help);
 				}
 
@@ -323,16 +407,20 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 			}
 
 			this.helpFlag = !this.helpFlag && var2;
-			if (!var2) {
+			if (!var2)
+			{
 				this.hexV.KeyFromMenu(((JMenuItem) var1.getSource()).getAccelerator().getKeyCode());
 			}
 		}
 
 	}
 
-	public void itemStateChanged(ItemEvent var1) {
-		if (var1.getSource() != this.viewCBox[0] && var1.getSource() != this.viewCBox[1]) {
-			if (var1.getSource() == this.fJCB[2]) {
+	public void itemStateChanged(ItemEvent var1)
+	{
+		if (var1.getSource() != this.viewCBox[0] && var1.getSource() != this.viewCBox[1])
+		{
+			if (var1.getSource() == this.fJCB[2])
+			{
 				int var2 = this.fJCB[2].getSelectedIndex();
 				this.fJCB[0].setEnabled(var2 < 5 || var2 == 8);
 				this.fJCB[1].setEnabled(var2 < 3);
@@ -340,20 +428,25 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 			}
 
 			this.checkFindEntry();
-		} else {
+		} else
+		{
 			this.hexV.rePaint();
 		}
 
 	}
 
-	public void caretUpdate(CaretEvent var1) {
+	public void caretUpdate(CaretEvent var1)
+	{
 		this.checkFindEntry();
 	}
 
-	protected void saveRunning(boolean var1) {
-		if (var1) {
+	protected void saveRunning(boolean var1)
+	{
+		if (var1)
+		{
 			this.jPBBP.add(this.savePBar);
-		} else {
+		} else
+		{
 			this.jPBBP.removeAll();
 		}
 
@@ -362,25 +455,29 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		this.repaint();
 	}
 
-	protected void find() {
+	protected void find()
+	{
 		this.findPBar.setString("");
 		this.fP0.add(this.fP1, "West");
 		this.validate();
 		this.repaint();
 	}
 
-	protected void findRunning(boolean var1) {
+	protected void findRunning(boolean var1)
+	{
 		boolean var2 = false;
 		this.fJB[0].setText(var1 ? "Stop" : "Next");
 		this.fJB[1].setEnabled(!var1);
 		this.findPBar.setValue(0);
-		if (!var1) {
+		if (!var1)
+		{
 			this.findPBar.setString("");
 		}
 
 	}
 
-	private void checkFindEntry() {
+	private void checkFindEntry()
+	{
 		boolean var1 = false;
 		BigDecimal var3 = null;
 		double var11 = 0.0D;
@@ -390,7 +487,8 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		StringBuffer var18 = new StringBuffer(220);
 		var18.append("<html>");
 
-		while (System.currentTimeMillis() < var15 + 50L) {
+		while (System.currentTimeMillis() < var15 + 50L)
+		{
 			;
 		}
 
@@ -401,18 +499,23 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		boolean var24 = false;
 		boolean var25 = false;
 		this.useFindChar = this.fJRB.isSelected() && 5 < var22;
-		if (var21 == 0) {
+		if (var21 == 0)
+		{
 			this.fJL.setText(" ");
-		} else {
+		} else
+		{
 			int var32;
 			int var23;
-			if (var22 < 5 && !var19.startsWith("0x") && !var19.startsWith("Ox") && !var19.startsWith("ox")) {
-				if (var19.charAt(0) == 45 && this.fJCB[1].getSelectedIndex() == 1 && var22 < 3) {
+			if (var22 < 5 && !var19.startsWith("0x") && !var19.startsWith("Ox") && !var19.startsWith("ox"))
+			{
+				if (var19.charAt(0) == 45 && this.fJCB[1].getSelectedIndex() == 1 && var22 < 3)
+				{
 					this.fJL.setText("<html><FONT color=red>Input must be positive for unsigned integer.</FONT>");
 					return;
 				}
 
-				if (var19.equals("-") || var19.equals("+")) {
+				if (var19.equals("-") || var19.equals("+"))
+				{
 					this.fJL.setText(" ");
 					return;
 				}
@@ -423,101 +526,130 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 										: (var22 == 3 ? BigDecimal.valueOf(-3.4028234663852886E38D)
 												: BigDecimal.valueOf(-1.7976931348623157E308D))));
 				BigDecimal var5;
-				if (2 < var22) {
+				if (2 < var22)
+				{
 					var5 = var22 == 3 ? BigDecimal.valueOf(3.4028234663852886E38D)
 							: BigDecimal.valueOf(Double.MAX_VALUE);
-				} else if (this.fJCB[1].getSelectedIndex() == 0) {
+				} else if (this.fJCB[1].getSelectedIndex() == 0)
+				{
 					var5 = var22 == 0 ? BigDecimal.valueOf(32767L)
 							: (var22 == 1 ? BigDecimal.valueOf(2147483647L) : BigDecimal.valueOf(Long.MAX_VALUE));
-				} else {
+				} else
+				{
 					var5 = var22 == 0 ? BigDecimal.valueOf(65535L)
 							: (var22 == 1 ? BigDecimal.valueOf(4294967295L) : new BigDecimal("18446744073709551615"));
 				}
 
 				this.finByte = new byte[var22 < 3 ? 2 << var22 : (var22 == 3 ? 4 : 8)];
 
-				while (0 < var21) {
-					try {
+				while (0 < var21)
+				{
+					try
+					{
 						var3 = new BigDecimal(var19.substring(0, var21));
-						if (var3.compareTo(var4) >= 0 && var5.compareTo(var3) >= 0) {
+						if (var3.compareTo(var4) >= 0 && var5.compareTo(var3) >= 0)
+						{
 							break;
 						}
 
 						throw new Exception("");
-					} catch (Exception var31) {
+					} catch (Exception var31)
+					{
 						--var21;
 					}
 				}
 
-				if (var21 == 0) {
+				if (var21 == 0)
+				{
 					this.fJL.setText("<html><FONT color=red>Input must be a number.</FONT>");
-				} else if (var22 < 3) {
+				} else if (var22 < 3)
+				{
 					BigInteger var7;
-					try {
+					try
+					{
 						var7 = var3.setScale(0, 7).unscaledValue();
-					} catch (Exception var27) {
+					} catch (Exception var27)
+					{
 						var7 = var3.setScale(0, 5).unscaledValue();
 						var1 = true;
 					}
 
-					if (var7.signum() < 0) {
+					if (var7.signum() < 0)
+					{
 						var15 = var7.longValue();
-						if (this.fJCB[0].getSelectedIndex() == 0) {
-							for (var23 = 0; var23 < this.finByte.length; ++var23) {
+						if (this.fJCB[0].getSelectedIndex() == 0)
+						{
+							for (var23 = 0; var23 < this.finByte.length; ++var23)
+							{
 								this.finByte[this.finByte.length - var23 - 1] = (byte) ((int) (var15 & 255L));
 								var15 >>>= 8;
 							}
-						} else {
-							for (var23 = 0; var23 < this.finByte.length; ++var23) {
+						} else
+						{
+							for (var23 = 0; var23 < this.finByte.length; ++var23)
+							{
 								this.finByte[var23] = (byte) ((int) (var15 & 255L));
 								var15 >>>= 8;
 							}
 						}
-					} else {
+					} else
+					{
 						byte[] var2 = var7.toByteArray();
 						var32 = this.finByte.length < var2.length ? this.finByte.length : var2.length;
 						Arrays.fill(this.finByte, (byte) 0);
-						if (this.fJCB[0].getSelectedIndex() == 0) {
-							for (var23 = 1; var23 <= var32; ++var23) {
+						if (this.fJCB[0].getSelectedIndex() == 0)
+						{
+							for (var23 = 1; var23 <= var32; ++var23)
+							{
 								this.finByte[this.finByte.length - var23] = var2[var2.length - var23];
 							}
-						} else {
-							for (var23 = 0; var23 < var32; ++var23) {
+						} else
+						{
+							for (var23 = 0; var23 < var32; ++var23)
+							{
 								this.finByte[var23] = var2[var2.length - 1 - var23];
 							}
 						}
 					}
-				} else {
+				} else
+				{
 					float var13 = var3.floatValue();
 					double var9 = var3.doubleValue();
 					this.useFindChar = var1 = 0 != (var32 = var3
 							.compareTo(new BigDecimal(var22 == 3 ? (double) var13 : var9)));
 					var15 = var17[0] = var22 == 3 ? (long) Float.floatToRawIntBits(var13)
 							: Double.doubleToRawLongBits(var9);
-					if (this.fJCB[0].getSelectedIndex() == 0) {
-						for (var23 = 0; var23 < this.finByte.length; ++var23) {
+					if (this.fJCB[0].getSelectedIndex() == 0)
+					{
+						for (var23 = 0; var23 < this.finByte.length; ++var23)
+						{
 							this.finByte[this.finByte.length - var23 - 1] = (byte) ((int) (var15 & 255L));
 							var15 >>>= 8;
 						}
-					} else {
-						for (var23 = 0; var23 < this.finByte.length; ++var23) {
+					} else
+					{
+						for (var23 = 0; var23 < this.finByte.length; ++var23)
+						{
 							this.finByte[var23] = (byte) ((int) (var15 & 255L));
 							var15 >>>= 8;
 						}
 					}
 
-					if (this.useFindChar) {
+					if (this.useFindChar)
+					{
 						var17[1] = var22 == 3
 								? (long) Float.floatToRawIntBits(
 										var14 = 0 < var32 ? BitMath.nextUp(var13) : BitMath.nextDown(var13))
 								: Double.doubleToRawLongBits(
 										var11 = 0 < var32 ? BitMath.nextUp(var9) : BitMath.nextDown(var9));
-						if (var22 == 3) {
+						if (var22 == 3)
+						{
 							var18.append(var32 < 0 ? "&lt; " : "&gt; ")
 									.append(this.fForm.format(new BigDecimal((double) var13)))
 									.append("<br>" + (var32 < 0 ? "&gt; " : "&lt; "))
 									.append(this.fForm.format(new BigDecimal((double) var14)));
-						} else {
+						} else
+						{
 							var18.append(var32 < 0 ? "&lt; " : "&gt; ").append(this.dForm.format(new BigDecimal(var9)))
 									.append("<br>" + (var32 < 0 ? "&gt; " : "&lt; "))
 									.append(this.dForm.format(new BigDecimal(var11)));
@@ -525,15 +657,20 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 
 						this.findChar = new byte[1][2][var22 == 3 ? 4 : 8];
 
-						for (var32 = 0; var32 < 2; ++var32) {
-							if (this.fJCB[0].getSelectedIndex() == 0) {
-								for (var23 = 0; var23 < this.findChar[0][var32].length; ++var23) {
+						for (var32 = 0; var32 < 2; ++var32)
+						{
+							if (this.fJCB[0].getSelectedIndex() == 0)
+							{
+								for (var23 = 0; var23 < this.findChar[0][var32].length; ++var23)
+								{
 									this.findChar[0][var32][this.finByte.length - var23
 											- 1] = (byte) ((int) (var17[var32] & 255L));
 									var17[var32] >>>= 8;
 								}
-							} else {
-								for (var23 = 0; var23 < this.findChar[0][var32].length; ++var23) {
+							} else
+							{
+								for (var23 = 0; var23 < this.findChar[0][var32].length; ++var23)
+								{
 									this.findChar[0][var32][var23] = (byte) ((int) (var17[var32] & 255L));
 									var17[var32] >>>= 8;
 								}
@@ -541,18 +678,22 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 						}
 					}
 				}
-			} else if (var22 == 5) {
+			} else if (var22 == 5)
+			{
 				var19 = var19.trim().replaceAll(" ", "");
-				if (var19.startsWith("0x") || var19.startsWith("Ox") || var19.startsWith("ox")) {
+				if (var19.startsWith("0x") || var19.startsWith("Ox") || var19.startsWith("ox"))
+				{
 					var19 = var19.substring(2);
 				}
 
 				for (var21 = 0; var21 < var19.length()
-						&& -1 < "0123456789abcdefABCDEF".indexOf(var19.charAt(var21)); ++var21) {
+						&& -1 < "0123456789abcdefABCDEF".indexOf(var19.charAt(var21)); ++var21)
+				{
 					;
 				}
 
-				if (var21 < 2) {
+				if (var21 < 2)
+				{
 					this.fJL.setText(var21 == var19.length() ? " "
 							: "<html><FONT color=red>Input must be a hexa string.</FONT>");
 					return;
@@ -560,87 +701,113 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 
 				this.finByte = new byte[var21 >> 1];
 
-				try {
-					for (var23 = 0; var23 < this.finByte.length; ++var23) {
+				try
+				{
+					for (var23 = 0; var23 < this.finByte.length; ++var23)
+					{
 						this.finByte[var23] = (byte) Integer.parseInt(var19.substring(var23 << 1, var23 * 2 + 2), 16);
 					}
-				} catch (Exception var30) {
+				} catch (Exception var30)
+				{
 					;
 				}
-			} else if (var22 == 6) {
-				while (0 < var21) {
-					try {
+			} else if (var22 == 6)
+			{
+				while (0 < var21)
+				{
+					try
+					{
 						var20 = var19.substring(0, var21);
 						this.finByte = var20.getBytes("ISO-8859-1");
-						if (!var20.equals(new String(this.finByte, "ISO-8859-1"))) {
+						if (!var20.equals(new String(this.finByte, "ISO-8859-1")))
+						{
 							throw new Exception("");
 						}
 						break;
-					} catch (Exception var28) {
+					} catch (Exception var28)
+					{
 						--var21;
 					}
 				}
 
-				if (var21 < 1) {
+				if (var21 < 1)
+				{
 					this.fJL.setText("<html><FONT color=red>Input must be an ISO-8859-1 string.</FONT>");
 					return;
 				}
-			} else {
-				while (0 < var21) {
-					try {
+			} else
+			{
+				while (0 < var21)
+				{
+					try
+					{
 						var20 = var19.substring(0, var21);
 						this.finByte = var20.getBytes(var22 == 7 ? "UTF-8"
 								: (this.fJCB[0].getSelectedIndex() == 0 ? "UTF-16BE" : "UTF-16LE"));
 						break;
-					} catch (Exception var29) {
+					} catch (Exception var29)
+					{
 						--var21;
 					}
 				}
 
-				if (var21 < 1) {
+				if (var21 < 1)
+				{
 					this.fJL.setText("<html><FONT color=red>Input must be an UTF string.</FONT>");
 					return;
 				}
 			}
 
-			if (var22 < 3 || 4 < var22 || !var1) {
-				for (var23 = 0; var23 < this.finByte.length; ++var23) {
+			if (var22 < 3 || 4 < var22 || !var1)
+			{
+				for (var23 = 0; var23 < this.finByte.length; ++var23)
+				{
 					var32 = this.finByte[var23] & 255;
 					var18.append((var32 < 16 ? "0" : "") + Integer.toHexString(var32).toUpperCase());
-					if ((var23 + 1) % 16 == 0) {
+					if ((var23 + 1) % 16 == 0)
+					{
 						var18.append("<br>");
-					} else if ((var23 + 1) % (1 << this.fJCB[3].getSelectedIndex()) == 0) {
+					} else if ((var23 + 1) % (1 << this.fJCB[3].getSelectedIndex()) == 0)
+					{
 						var18.append(" ");
 					}
 				}
 			}
 
 			var19 = var19.toUpperCase();
-			if (var21 == var19.length() - 1 && (var22 >= 5 || var19.charAt(var19.length() - 1) != 69)) {
+			if (var21 == var19.length() - 1 && (var22 >= 5 || var19.charAt(var19.length() - 1) != 69))
+			{
 				var18.append("<br><FONT color=red>The last char is invalid.</FONT>");
 			} else if (var21 < var19.length() - 1
 					&& (var21 != var19.length() - 2 || var22 >= 5 || var19.charAt(var19.length() - 2) != 69
-							|| var19.charAt(var19.length() - 1) != 43 && var19.charAt(var19.length() - 1) != 45)) {
+							|| var19.charAt(var19.length() - 1) != 43 && var19.charAt(var19.length() - 1) != 45))
+			{
 				var18.append("<br><FONT color=red>The last ").append(var19.length() - var21)
 						.append(" caracters are invalid.</FONT>");
 			}
 
-			if (var1 && !this.useFindChar) {
+			if (var1 && !this.useFindChar)
+			{
 				var18.append("<br><FONT color=red>The binary doesn\'t represent exactly the significand.</FONT>");
 			}
 
 			this.fJL.setText(var18.toString());
 			if (var20 != null && 0 < var20.length() && this.fJRB.isSelected()
-					&& !var20.toUpperCase().equals(var20.toLowerCase())) {
+					&& !var20.toUpperCase().equals(var20.toLowerCase()))
+			{
 				var20 = var20.toUpperCase();
 				this.findChar = new byte[var20.length()][][];
 
-				for (var21 = 0; var21 < var20.length(); ++var21) {
+				for (var21 = 0; var21 < var20.length(); ++var21)
+				{
 					char var8 = var20.charAt(var21);
 					var23 = var8 == Character.toLowerCase(var8) ? 1 : 2;
-					if (1 < var23) {
-						for (var22 = 0; var22 < BinUtil.ACCENTS.length; ++var22) {
-							if (-1 < BinUtil.ACCENTS[var22].indexOf(var8)) {
+					if (1 < var23)
+					{
+						for (var22 = 0; var22 < BinUtil.ACCENTS.length; ++var22)
+						{
+							if (-1 < BinUtil.ACCENTS[var22].indexOf(var8))
+							{
 								var23 = BinUtil.ACCENTS[var22].length();
 								break;
 							}
@@ -649,28 +816,37 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 
 					this.findChar[var21] = new byte[var23][];
 
-					for (var32 = 0; var32 < var23; ++var32) {
-						if (var23 < 3) {
+					for (var32 = 0; var32 < var23; ++var32)
+					{
+						if (var23 < 3)
+						{
 							var8 = var32 == 0 ? var8 : Character.toUpperCase(var8);
-						} else if (var22 < BinUtil.ACCENTS.length) {
+						} else if (var22 < BinUtil.ACCENTS.length)
+						{
 							var8 = BinUtil.ACCENTS[var22].charAt(var32);
 						}
 
-						if (var22 == 6) {
+						if (var22 == 6)
+						{
 							this.findChar[var21][var32] = new byte[1];
 							this.findChar[var21][var32][0] = var8 < 256 ? (byte) var8 : this.findChar[var21][0][0];
-						} else if (var22 == 8) {
+						} else if (var22 == 8)
+						{
 							this.findChar[var21][var32] = new byte[2];
 							this.findChar[var21][var32][1 - this.fJCB[0].getSelectedIndex()] = (byte) (var8 & 255);
 							this.findChar[var21][var32][this.fJCB[0].getSelectedIndex()] = (byte) (var8 >> 8);
-						} else {
+						} else
+						{
 							this.findChar[var21][var32] = new byte[var8 < 128 ? 1
 									: (var8 < 2048 ? 2 : (var8 < 65536 ? 3 : 4))];
-							if (var8 < 128) {
+							if (var8 < 128)
+							{
 								this.findChar[var21][var32][0] = (byte) var8;
-							} else {
+							} else
+							{
 								int var33;
-								for (var33 = this.findChar[var21][var32].length - 1; 0 < var33; --var33) {
+								for (var33 = this.findChar[var21][var32].length - 1; 0 < var33; --var33)
+								{
 									this.findChar[var21][var32][var33] = (byte) (var8 & 63 | 128);
 									var8 = (char) (var8 >> 6);
 								}
@@ -687,19 +863,24 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		}
 	}
 
-	public void mouseReleased(MouseEvent var1) {
+	public void mouseReleased(MouseEvent var1)
+	{
 	}
 
-	public void mouseEntered(MouseEvent var1) {
+	public void mouseEntered(MouseEvent var1)
+	{
 	}
 
-	public void mouseExited(MouseEvent var1) {
+	public void mouseExited(MouseEvent var1)
+	{
 	}
 
-	public void mousePressed(MouseEvent var1) {
+	public void mousePressed(MouseEvent var1)
+	{
 	}
 
-	public void mouseClicked(MouseEvent var1) {
+	public void mouseClicked(MouseEvent var1)
+	{
 		this.hexOffset = !this.hexOffset;
 		this.hexV.setStatus();
 	}
