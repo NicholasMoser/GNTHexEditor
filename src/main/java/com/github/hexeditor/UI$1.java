@@ -19,7 +19,7 @@ final class UI$1 implements Runnable {
 		JFrame var1 = new JFrame(
 				1 < this.val$args.length && this.val$args[0].equals("-slave")
 						? "hexeditor.jar currently linked to  " + this.val$args[1]
-						: "hexeditor.jar     https://github.com/javadev/hexeditor     Updated: 2014-07-29",
+						: "hexeditor.jar     https://github.com/NicholasMoser/hexeditor     Updated: 2014-07-29",
 				GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration());
 		var1.setIconImage((new ImageIcon(UI.logo)).getImage());
 		var1.setDefaultCloseOperation(3);

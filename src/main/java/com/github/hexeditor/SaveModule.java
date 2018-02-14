@@ -10,19 +10,18 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
-class saveT extends Thread {
+class SaveModule extends Thread {
 
 	File f1;
 	File f2;
 	Vector v1;
-	binEdit hexV;
+	BinEdit hexV;
 	JProgressBar jPBar;
 	private long time;
 	private long virtualSize;
 	private long pos;
 
 	public void run() {
-		boolean var1 = false;
 		int var3 = 0;
 		FileInputStream var5 = null;
 		byte[] var8 = new byte[2097152];
@@ -30,12 +29,12 @@ class saveT extends Thread {
 			long var14 = 0L;
 			this.pos = 0L;
 			this.time = System.currentTimeMillis();
-			this.virtualSize = ((edObj) this.v1.lastElement()).p2;
+			this.virtualSize = ((EditState) this.v1.lastElement()).p2;
 			this.jPBar.setMaximum(1073741824);
 
-			edObj var9;
+			EditState var9;
 			while (var3 < this.v1.size()) {
-				var9 = (edObj) this.v1.get(var3);
+				var9 = (EditState) this.v1.get(var3);
 				if (this.pos < var9.p2) {
 					break;
 				}
@@ -54,14 +53,14 @@ class saveT extends Thread {
 
 				for (var16 = new BufferedOutputStream(new FileOutputStream(var6), 2097152); var3 < this.v1.size()
 						&& this.next(); ++var3) {
-					var9 = (edObj) this.v1.get(var3);
+					var9 = (EditState) this.v1.get(var3);
 					long var10 = var9.p1 - var9.offset;
 					this.pos = var9.p1;
-					if (var9.o.a1 != 4 && var9.o.a1 != 2 && (var9.o.a1 != 6 || 1 >= var9.o.B.size())) {
+					if (var9.o.a1 != 4 && var9.o.a1 != 2 && (var9.o.a1 != 6 || 1 >= var9.o.stack.size())) {
 						int var2;
 						long var12;
 						if (var9.o.a1 == 6) {
-							Arrays.fill(var8, ((Byte) var9.o.B.get(0)).byteValue());
+							Arrays.fill(var8, (var9.o.stack.get(0)).byteValue());
 
 							while (this.pos < var9.p2 && this.next()) {
 								var12 = var9.p2 - this.pos;
@@ -90,7 +89,7 @@ class saveT extends Thread {
 						}
 					} else {
 						while (this.pos < var9.p2 && this.next()) {
-							var16.write(((Byte) var9.o.B.get((int) (this.pos - var10))).byteValue());
+							var16.write((var9.o.stack.get((int) (this.pos - var10))).byteValue());
 							++this.pos;
 						}
 

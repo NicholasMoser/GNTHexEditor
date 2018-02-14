@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Vector;
 import javax.swing.JProgressBar;
 
-class findT extends Thread {
+class FindModule extends Thread {
 
 	File f1;
 	Vector v1;
@@ -15,7 +15,7 @@ class findT extends Thread {
 	long pos;
 	byte[] inBytes = null;
 	byte[][][] inChars = (byte[][][]) null;
-	binEdit hexV;
+	BinEdit hexV;
 	JProgressBar jPBar;
 	private boolean isFound = false;
 	private int realLength = 0;
@@ -25,14 +25,12 @@ class findT extends Thread {
 	private Vector pile = new Vector();
 
 	public void run() {
-		boolean var1 = false;
-		boolean var3 = false;
 		FileInputStream var5 = null;
 		byte[] var6 = new byte[2097152];
-		edObj var7 = null;
+		EditState var7 = null;
 		if (this.v1 != null && this.v1.size() != 0) {
 			long var12 = 0L;
-			this.virtualSize = ((edObj) this.v1.lastElement()).p2;
+			this.virtualSize = ((EditState) this.v1.lastElement()).p2;
 			this.jPBar.setMaximum(1073741824);
 			int var2;
 			int var4;
@@ -52,7 +50,7 @@ class findT extends Thread {
 			}
 
 			for (var18 = 0; var18 < this.v1.size(); ++var18) {
-				var7 = (edObj) this.v1.get(var18);
+				var7 = (EditState) this.v1.get(var18);
 				if (this.pos < var7.p2) {
 					break;
 				}
@@ -64,11 +62,11 @@ class findT extends Thread {
 				}
 
 				while (var18 < this.v1.size() && this.next()) {
-					var7 = (edObj) this.v1.get(var18);
+					var7 = (EditState) this.v1.get(var18);
 					long var8 = var7.p1 - var7.offset;
-					if (var7.o.a1 != 4 && var7.o.a1 != 2 && (var7.o.a1 != 6 || 1 >= var7.o.B.size())) {
+					if (var7.o.a1 != 4 && var7.o.a1 != 2 && (var7.o.a1 != 6 || 1 >= var7.o.stack.size())) {
 						if (var7.o.a1 == 6) {
-							byte var17 = ((Byte) var7.o.B.get(0)).byteValue();
+							byte var17 = (var7.o.stack.get(0)).byteValue();
 
 							while (this.pos < var7.p2 && this.next()) {
 								this.findB(var17);
@@ -100,7 +98,7 @@ class findT extends Thread {
 						}
 					} else {
 						while (this.pos < var7.p2 && this.next()) {
-							this.findB(((Byte) var7.o.B.get((int) (this.pos - var8))).byteValue());
+							this.findB((var7.o.stack.get((int) (this.pos - var8))).byteValue());
 						}
 					}
 

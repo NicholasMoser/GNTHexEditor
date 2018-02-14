@@ -41,9 +41,10 @@ import javax.swing.JScrollBar;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 
-class binEdit extends JComponent implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener,
+class BinEdit extends JComponent implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener,
 		ActionListener, AdjustmentListener {
-
+	
+	private static final long serialVersionUID = -8556500880720037563L;
 	boolean nibArea = true;
 	boolean isNibLow = false;
 	boolean jSbSource = true;
@@ -86,15 +87,15 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 	Vector v1 = new Vector();
 	Vector XCV = new Vector();
 	Byte byteCtrlY = null;
-	edObj eObj = null;
-	edObj eObjCtrlY = null;
+	EditState eObj = null;
+	EditState eObjCtrlY = null;
 	File f1 = null;
-	public binPanel topPanel;
-	saveT sav;
-	findT find;
+	public BinPanel topPanel;
+	SaveModule sav;
+	FindModule find;
 	long longInput = 0L;
 
-	public binEdit(binPanel var1, boolean var2) {
+	public BinEdit(BinPanel var1, boolean var2) {
 		this.setLayout(new BorderLayout());
 		this.add(this.jSB, "East");
 		this.setGrid(14);
@@ -136,7 +137,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		} else {
 			this.jSbSource = false;
 			this.jSB.setValue(0);
-			this.pushHObj(new edObj(0L, 0L, 2),
+			this.pushHObj(new EditState(0L, 0L, 2),
 					"\tTry   Hexeditor.jar with this   virtual file.\n  An applet cannot access a real  file nor the    clipboard.\n     The File menu,  Ctrl+X, Ctrl+C, & Ctrl+V are    therefore       inhibited.");
 		}
 
@@ -166,7 +167,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			this.rAF = new RandomAccessFile(this.f1, this.f1.canWrite() ? "rw" : "r");
 			this.jSbSource = false;
 			this.jSB.setValue(0);
-			this.undoStack.push(new edObj(0L, this.f1.length(), 0));
+			this.undoStack.push(new EditState(0L, this.f1.length(), 0));
 			this.doVirtual();
 			this.focus();
 		} catch (Exception var3) {
@@ -727,7 +728,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		}
 
 		if ((this.lastPos != this.newPos || this.lastPos + 1L != this.newPos) && !this.undoStack.isEmpty()) {
-			((edObj) this.undoStack.lastElement()).isEditing = false;
+			((EditState) this.undoStack.lastElement()).isEditing = false;
 		}
 
 		return this.newPos;
@@ -812,8 +813,8 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			this.firstPos = this.lastPos;
 		}
 
-		if (!this.undoStack.empty() && ((edObj) this.undoStack.lastElement()).isEditing) {
-			((edObj) this.undoStack.lastElement()).isEditing = false;
+		if (!this.undoStack.empty() && ((EditState) this.undoStack.lastElement()).isEditing) {
+			((EditState) this.undoStack.lastElement()).isEditing = false;
 		}
 
 		if (9223372036854775792L - (long) this.maxPos + 16L < this.scrPos) {
@@ -894,7 +895,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				}
 
 				if (var1 == 88) {
-					this.pushHObj(new edObj(var10, var12 - var10, 8), (String) null);
+					this.pushHObj(new EditState(var10, var12 - var10, 8), (String) null);
 				}
 			}
 			break;
@@ -999,7 +1000,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			break;
 		case 86:
 			if (!var4 && !this.isApplet && (var6 = this.fromClipboard(true)) != null) {
-				this.pushHObj(new edObj(this.lastPos, (long) var6.length(), 4), var6);
+				this.pushHObj(new EditState(this.lastPos, (long) var6.length(), 4), var6);
 			}
 			break;
 		case 87:
@@ -1011,7 +1012,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				this.pushHObj(this.eObjCtrlY, (String) null);
 				this.eObjCtrlY = null;
 			} else if (this.byteCtrlY != null) {
-				this.eObj.B.push(this.byteCtrlY);
+				this.eObj.stack.push(this.byteCtrlY);
 				this.firstPos = ++this.lastPos;
 				if (this.scrPos < this.lastPos - (long) this.maxPos) {
 					this.scrPos += 16L;
@@ -1023,17 +1024,17 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			break;
 		case 90:
 			if (!var4 && !this.undoStack.empty() && (1 < this.undoStack.size()
-					|| 1 == this.undoStack.size() && 2 < ((edObj) this.undoStack.lastElement()).a1)) {
-				this.eObj = this.eObjCtrlY = (edObj) this.undoStack.lastElement();
-				if (this.eObj.isEditing && !this.eObj.B.empty()) {
-					this.byteCtrlY = (Byte) this.eObj.B.pop();
+					|| 1 == this.undoStack.size() && 2 < ((EditState) this.undoStack.lastElement()).a1)) {
+				this.eObj = this.eObjCtrlY = (EditState) this.undoStack.lastElement();
+				if (this.eObj.isEditing && !this.eObj.stack.empty()) {
+					this.byteCtrlY = this.eObj.stack.pop();
 					if (!this.isNibLow) {
 						this.firstPos = --this.lastPos;
 					} else {
 						this.isNibLow = false;
 					}
 
-					if ((this.eObj.size = (long) this.eObj.B.size()) == 0L) {
+					if ((this.eObj.size = (long) this.eObj.stack.size()) == 0L) {
 						this.undoStack.pop();
 						this.byteCtrlY = null;
 					} else {
@@ -1059,7 +1060,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 						if (this.InsDelB[4].isSelected()) {
 							if (!this.isApplet && var7 != null
 									&& this.virtualSize + (long) var7.length() < Long.MAX_VALUE) {
-								this.pushHObj(new edObj(this.lastPos, (long) var7.length(), 6), var7);
+								this.pushHObj(new EditState(this.lastPos, (long) var7.length(), 6), var7);
 							}
 						} else {
 							if ((var6 = this.InsDelTF.getText()) == null) {
@@ -1078,7 +1079,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 								this.longInput = Long.MAX_VALUE - this.virtualSize;
 							}
 
-							this.pushHObj(new edObj(this.lastPos, this.longInput, this.InsDelB[0].isSelected() ? 8 : 6),
+							this.pushHObj(new EditState(this.lastPos, this.longInput, this.InsDelB[0].isSelected() ? 8 : 6),
 									this.InsDelB[0].isSelected() ? null
 											: (this.InsDelB[1].isSelected() ? " "
 													: (this.InsDelB[2].isSelected() ? "ÿ" : " ")));
@@ -1096,14 +1097,14 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		this.focus();
 	}
 
-	private void pushHObj(edObj var1, String var2) {
+	private void pushHObj(EditState var1, String var2) {
 		if (!this.undoStack.isEmpty()) {
-			(this.eObj = (edObj) this.undoStack.lastElement()).isEditing = false;
+			(this.eObj = (EditState) this.undoStack.lastElement()).isEditing = false;
 		}
 
 		if (var2 != null) {
 			for (int var3 = 0; var3 < var2.length(); ++var3) {
-				var1.B.push(Byte.valueOf((byte) var2.charAt(var3)));
+				var1.stack.push(Byte.valueOf((byte) var2.charAt(var3)));
 			}
 		}
 
@@ -1236,16 +1237,16 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		int var7 = "0123456789ABCDEFabcdef".indexOf(Character.toUpperCase(var5));
 		if (!var1.isAltDown() && !var1.isControlDown() && !Character.isISOControl(var5) && var5 < 256
 				&& var1.getSource() == this && 0L < this.virtualSize && !var3 && (!this.nibArea || -1 < var7)) {
-			if (!this.undoStack.empty() && ((edObj) this.undoStack.lastElement()).isEditing) {
-				this.eObj = (edObj) this.undoStack.lastElement();
+			if (!this.undoStack.empty() && ((EditState) this.undoStack.lastElement()).isEditing) {
+				this.eObj = (EditState) this.undoStack.lastElement();
 			} else {
-				this.eObj = new edObj(this.lastPos, 0L, 4);
+				this.eObj = new EditState(this.lastPos, 0L, 4);
 				this.undoStack.push(this.eObj);
 				this.eObj.isEditing = true;
 			}
 
 			if (!this.nibArea) {
-				this.eObj.B.push(Byte.valueOf((byte) var5));
+				this.eObj.stack.push(Byte.valueOf((byte) var5));
 				if (this.lastPos < Long.MAX_VALUE) {
 					this.firstPos = ++this.lastPos;
 				}
@@ -1258,12 +1259,12 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				}
 
 				var4 = (byte) (this.isNibLow ? (var4 & 240) + var7 : (var7 << 4) + (var4 & 15));
-				if (this.isNibLow && !this.eObj.B.empty()
-						&& this.eObj.p1 + (long) this.eObj.B.size() == this.lastPos + 1L) {
-					this.eObj.B.pop();
+				if (this.isNibLow && !this.eObj.stack.empty()
+						&& this.eObj.p1 + (long) this.eObj.stack.size() == this.lastPos + 1L) {
+					this.eObj.stack.pop();
 				}
 
-				this.eObj.B.push(Byte.valueOf(var4));
+				this.eObj.stack.push(Byte.valueOf(var4));
 				if (!(this.isNibLow = !this.isNibLow) && this.lastPos < Long.MAX_VALUE) {
 					this.firstPos = ++this.lastPos;
 				}
@@ -1296,9 +1297,9 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			this.caretVisible = 0;
 			this.timer.restart();
 		} else {
-			edObj var5 = (edObj) this.undoStack.lastElement();
+			EditState var5 = (EditState) this.undoStack.lastElement();
 			if (var5.a1 != 6 && var5.a1 != 8) {
-				var5.size = var5.B.size() != 0 ? (long) var5.B.size() : var5.size;
+				var5.size = var5.stack.size() != 0 ? (long) var5.stack.size() : var5.size;
 				var5.p2 = var5.p1 + var5.size;
 			}
 
@@ -1311,17 +1312,17 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				this.topPanel.JTFile.setText(var10 + (1 < this.undoStack.size() ? " *" : ""));
 			}
 
-			var5 = (edObj) this.undoStack.firstElement();
-			this.v1.add(new edObj(0L, var5.p2, var5.offset, var5));
+			var5 = (EditState) this.undoStack.firstElement();
+			this.v1.add(new EditState(0L, var5.p2, var5.offset, var5));
 
 			for (int var1 = 1; var1 < this.undoStack.size(); ++var1) {
-				var5 = (edObj) this.undoStack.get(var1);
-				edObj var9 = var5.a1 == 8 ? null : new edObj(var5.p1, var5.p2, var5.offset, var5);
+				var5 = (EditState) this.undoStack.get(var1);
+				EditState var9 = var5.a1 == 8 ? null : new EditState(var5.p1, var5.p2, var5.offset, var5);
 				long var3 = var5.a1 == 6 ? var5.size : (var5.a1 == 8 ? -var5.size : 0L);
 				int var2 = this.v1.size() - 1;
 				if (var5 != null && var5.p1 != var5.p2) {
 					for (; -1 < var2; --var2) {
-						edObj var6 = (edObj) this.v1.get(var2);
+						EditState var6 = (EditState) this.v1.get(var2);
 						if (var2 == this.v1.size() - 1 && var6.p2 == var5.p1) {
 							this.v1AddNoNull(var2 + 1, var9);
 							break;
@@ -1355,7 +1356,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 								if (var5.a1 == 6 || var5.p1 > var6.p1 || var6.p1 >= var5.p2) {
 									if (var6.p1 < var5.p1 && (var5.p2 < var6.p2 || var5.a1 == 6)) {
-										edObj var7 = this.v1Clone(var6);
+										EditState var7 = this.v1Clone(var6);
 										var7.p2 = var5.p1;
 										var6.offset += (var5.a1 == 6 ? var5.p1 : var5.p2) - var6.p1;
 										var6.p1 = var5.a1 == 8 ? var5.p1 : var5.p2;
@@ -1379,7 +1380,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				}
 			}
 
-			long var12 = this.v1 != null && this.v1.size() != 0 ? ((edObj) this.v1.lastElement()).p2 : 0L;
+			long var12 = this.v1 != null && this.v1.size() != 0 ? ((EditState) this.v1.lastElement()).p2 : 0L;
 			if (this.virtualSize != var12) {
 				this.virtualSize = var12;
 				this.setGrid(this.fontSize);
@@ -1392,16 +1393,16 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		}
 	}
 
-	protected void v1AddNoNull(int var1, edObj var2) {
+	protected void v1AddNoNull(int var1, EditState var2) {
 		if (var2 != null && -1 < var1 && var1 <= this.v1.size() && var2.p1 != var2.p2) {
 			this.v1.add(var1, var2);
 		}
 
 	}
 
-	protected edObj v1Clone(edObj var1) {
+	protected EditState v1Clone(EditState var1) {
 		if (var1 != null && var1.p1 != var1.p2) {
-			edObj var2 = new edObj(var1.p1, var1.p2, var1.offset, var1.o);
+			EditState var2 = new EditState(var1.p1, var1.p2, var1.offset, var1.o);
 			return var2;
 		} else {
 			return null;
@@ -1413,25 +1414,25 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		int var8 = 0;
 		int var10 = 0;
 		long var17 = var1;
-		edObj var19 = null;
+		EditState var19 = null;
 
 		Vector var20;
 		for (var20 = new Vector(); var8 < this.v1.size(); ++var8) {
-			var19 = (edObj) this.v1.get(var8);
+			var19 = (EditState) this.v1.get(var8);
 			if (var1 < var19.p2) {
 				break;
 			}
 		}
 
 		while (var8 < this.v1.size()) {
-			var19 = (edObj) this.v1.get(var8);
+			var19 = (EditState) this.v1.get(var8);
 			long var11 = var19.p1 - var19.offset;
 			long var13 = var19.p2 < var3 ? var19.p2 : var3;
-			if (var19.o.a1 != 4 && var19.o.a1 != 2 && (var19.o.a1 != 6 || 1 >= var19.o.B.size())) {
+			if (var19.o.a1 != 4 && var19.o.a1 != 2 && (var19.o.a1 != 6 || 1 >= var19.o.stack.size())) {
 				if (var19.o.a1 == 6) {
 					var5[1] = (byte) var19.o.a1;
 
-					for (var5[0] = ((Byte) var19.o.B.get(0)).byteValue(); var17 < var13; ++var17) {
+					for (var5[0] = (var19.o.stack.get(0)).byteValue(); var17 < var13; ++var17) {
 						var20.add(var5.clone());
 					}
 				} else {
@@ -1470,7 +1471,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			} else {
 				for (var5[1] = (byte) (var19.a1 == 2 && var19.p1 != var19.offset ? 1
 						: var19.o.a1); var17 < var13; ++var17) {
-					var5[0] = ((Byte) var19.o.B.get((int) (var17 - var11))).byteValue();
+					var5[0] = (var19.o.stack.get((int) (var17 - var11))).byteValue();
 					var20.add(var5.clone());
 				}
 			}
@@ -1491,22 +1492,22 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 	}
 
 	protected boolean save1() {
-		JFileChooser var1 = new JFileChooser();
-		var1.setFileSelectionMode(0);
-		var1.setAcceptAllFileFilterUsed(false);
-		var1.setDialogTitle("Save as...");
-		var1.setDialogType(1);
-		var1.setMultiSelectionEnabled(false);
-		var1.setDragEnabled(false);
-		var1.setFileFilter(new filterRW());
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setFileSelectionMode(0);
+		fileChooser.setAcceptAllFileFilterUsed(false);
+		fileChooser.setDialogTitle("Save as...");
+		fileChooser.setDialogType(1);
+		fileChooser.setMultiSelectionEnabled(false);
+		fileChooser.setDragEnabled(false);
+		fileChooser.setFileFilter(new BinFileFilter());
 		if (this.f1 != null && this.f1.canWrite()) {
-			var1.setSelectedFile(this.f1);
+			fileChooser.setSelectedFile(this.f1);
 		} else {
-			var1.setCurrentDirectory(
+			fileChooser.setCurrentDirectory(
 					this.f1 == null ? new File(System.getProperty("user.dir")) : this.f1.getParentFile());
 		}
 
-		if (var1.showSaveDialog(this) != 0) {
+		if (fileChooser.showSaveDialog(this) != 0) {
 			return false;
 		} else {
 			this.topPanel.saveRunning(true);
@@ -1514,9 +1515,9 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				this.sav.interrupt();
 			}
 
-			(this.sav = new saveT()).setDaemon(true);
+			(this.sav = new SaveModule()).setDaemon(true);
 			this.sav.f1 = this.f1;
-			this.sav.f2 = var1.getSelectedFile();
+			this.sav.f2 = fileChooser.getSelectedFile();
 			this.sav.v1 = this.v1;
 			this.sav.hexV = this;
 			this.sav.jPBar = this.topPanel.savePBar;
@@ -1537,7 +1538,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			}
 
 			this.undoStack.clear();
-			this.undoStack.push(new edObj(0L, this.f1.length(), 0));
+			this.undoStack.push(new EditState(0L, this.f1.length(), 0));
 			this.doVirtual();
 		}
 
@@ -1554,7 +1555,7 @@ class binEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				this.find.interrupt();
 			}
 
-			(this.find = new findT()).setDaemon(true);
+			(this.find = new FindModule()).setDaemon(true);
 			this.find.f1 = this.f1;
 			this.find.v1 = this.v1;
 			this.find.isApplet = this.isApplet;

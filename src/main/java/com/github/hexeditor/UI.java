@@ -15,7 +15,7 @@ import javax.swing.UIManager;
 
 public class UI extends JApplet {
 
-	private static final String link = "https://github.com/javadev/hexeditor";
+	private static final String link = "https://github.com/NicholasMoser/hexeditor";
 	private static final String appName = "hexeditor.jar";
 	private static final String version = "2014-07-29";
 	private static boolean applet = false;
@@ -44,7 +44,7 @@ public class UI extends JApplet {
 			;
 		}
 
-		jP.add(new binPanel(applet, arg));
+		jP.add(new BinPanel(applet, arg));
 	}
 
 	public void init() {

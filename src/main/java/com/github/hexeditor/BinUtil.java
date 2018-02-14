@@ -1,8 +1,8 @@
 package com.github.hexeditor;
 
-class accent {
+class BinUtil {
 
-	public static final String[] s = new String[] {
+	public static final String[] ACCENTS = new String[] {
 			"@AaÀÁÂÃÄÅàáâãäåĀāĂăĄąǍǎǞǟǠǡǺǻȀȁȂȃȦȧȺḀḁẚẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặ₳ÅⒶⓐⱥⱯ＠Ａａ", "BbƀƁƂƃƄƅɃɓḂḃḄḅḆḇℬ␢ⒷⓑＢｂ",
 			"Cc¢©ÇçĆćĈĉĊċČčƇƈȻȼḈḉ₡₢ℂ℃℄ℭⒸⓒꜾꜿＣｃ", "DdÐðĎďĐđƉƊƋƌȡɖɗḊḋḌḍḎḏḐḑḒḓ₫₯ⅅⅆ∂ⒹⓓꝩꝺＤｄ",
 			"EeÈÉÊËèéêëĒēĔĕĖėĘęĚěƎǝȄȅȆȇȨȩḔḕḖḗḘḙḚḛḜḝẸẹẺẻẼẽẾếỀềỂểỄễỆệ₠€ℇ℮ℯℰⅇⒺⓔⱸⱻＥｅ", "FfƑƒḞḟ₣℉ℱℲ⅍ⒻⓕꜰꝫꝼꟻＦｆ",

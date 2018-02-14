@@ -8,13 +8,14 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.event.HyperlinkEvent.EventType;
 
-class jEP extends JScrollPane implements HyperlinkListener {
-
+class HelpWindow extends JScrollPane implements HyperlinkListener {
+	
+	private static final long serialVersionUID = -1759877677819803753L;
 	JEditorPane eP = new JEditorPane();
 	String s1;
 	public String s2 = null;
 
-	public jEP(String var1, boolean var2) {
+	public HelpWindow(String var1, boolean var2) {
 		super(22, 30);
 		this.eP.addHyperlinkListener(this);
 		this.eP.setText(var1);

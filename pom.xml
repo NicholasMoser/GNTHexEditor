@@ -8,11 +8,14 @@
   <version>1.0-SNAPSHOT</version>
   <name>Binary file editor</name>
   <description>The binary file editor</description>
-  <url>https://github.com/javadev/hexeditor</url>
+  <url>https://github.com/NicholasMoser/hexeditor</url>
   
   <developers>
     <developer>
       <name>Valentyn Kolesnikov</name>
+    </developer>
+    <developer>
+      <name>Nicholas Moser</name>
     </developer>
   </developers>
 
@@ -25,9 +28,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:git://github.com/javadev/hexeditor.git</connection>
-    <developerConnection>scm:git:git://github.com/javadev/hexeditor.git</developerConnection>
-    <url>https://github.com/javadev/hexeditor</url>
+    <connection>scm:git:git://github.com/NicholasMoser/hexeditor.git</connection>
+    <developerConnection>scm:git:git://github.com/NicholasMoser/hexeditor.git</developerConnection>
+    <url>https://github.com/NicholasMoser/hexeditor</url>
   </scm>
 
   <properties>
@@ -36,12 +39,12 @@
 
   <ciManagement>
     <system>Travis CI</system>
-    <url>https://travis-ci.org/javadev/hexeditor</url>
+    <url>https://travis-ci.org/NicholasMoser/hexeditor</url>
   </ciManagement>
 
   <issueManagement>
     <system>GitHub Issues</system>
-    <url>https://github.com/javadev/hexeditor</url>
+    <url>https://github.com/NicholasMoser/hexeditor</url>
   </issueManagement>
 
   <build>

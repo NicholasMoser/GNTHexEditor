@@ -37,12 +37,13 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-public class binPanel extends JPanel implements ActionListener, ItemListener, CaretListener, MouseListener {
-
+public class BinPanel extends JPanel implements ActionListener, ItemListener, CaretListener, MouseListener {
+	
+	private static final long serialVersionUID = -8680667391726401284L;
 	JTextField JTFile = new JTextField();
 	JProgressBar savePBar = new JProgressBar(0, 0, 0);
 	JProgressBar findPBar = new JProgressBar(0, 0, 0);
-	binEdit hexV;
+	BinEdit hexV;
 	JComponent help = this.help();
 	boolean helpFlag = false;
 	boolean cp437Available = false;
@@ -69,15 +70,15 @@ public class binPanel extends JPanel implements ActionListener, ItemListener, Ca
 	JMenuItem menuItem;
 	boolean isApplet = false;
 	boolean hexOffset = true;
-	slaveT slave;
+	SlaveModule slave;
 	DecimalFormatSymbols dFS = new DecimalFormatSymbols();
 	DecimalFormat fForm = new DecimalFormat("#.##########E0");
 	DecimalFormat dForm = new DecimalFormat("#.###################E0");
 
-	public binPanel(boolean var1, String[] var2) {
-		this.isApplet = var1;
+	public BinPanel(boolean isApplet, String[] args) {
+		this.isApplet = isApplet;
 		this.setLayout(new BorderLayout());
-		String[][] var5 = new String[][] { { "File", "Open", "Save as ", "Close file (Q)", "Screen to Png" },
+		String[][] menuItems = new String[][] { { "File", "Open", "Save as ", "Close file (Q)", "Screen to Png" },
 				{ "Edit", "Select All", "Undo (Z)", "Redo (Y)", "Cut (X)", "Copy", "Paste (V)", "Find",
 						"Insert (before)", "Delete" },
 				{ "View", "Goto", "Toggle position Mark", "Down to next mark", "Up to previous mark ", "Toggle caret ",
@@ -90,11 +91,11 @@ public class binPanel extends JPanel implements ActionListener, ItemListener, Ca
 		int[][] var8 = new int[][] { { 0, 2, 2, 2, 2 }, { 0, 2, 2, 2, 2, 2, 2, 2, 0, 0 }, { 0, 2, 2, 2, 2, 2, 2, 2, 2 },
 				{ 0, 2, 2 }, { 0, 2 } };
 
-		for (int var3 = 0; var3 < var5.length; ++var3) {
-			(this.menu = new JMenu(var5[var3][0])).setMnemonic(var7[var3][0]);
-			if (var3 != 0 || !var1) {
-				for (int var4 = 1; var4 < var5[var3].length; ++var4) {
-					this.menuItem = new JMenuItem(var5[var3][var4], var7[var3][var4]);
+		for (int var3 = 0; var3 < menuItems.length; ++var3) {
+			(this.menu = new JMenu(menuItems[var3][0])).setMnemonic(var7[var3][0]);
+			if (var3 != 0 || !isApplet) {
+				for (int var4 = 1; var4 < menuItems[var3].length; ++var4) {
+					this.menuItem = new JMenuItem(menuItems[var3][var4], var7[var3][var4]);
 					if (var3 != 4) {
 						this.menuItem.setAccelerator(KeyStroke.getKeyStroke(var6[var3][var4], var8[var3][var4]));
 					}
@@ -114,7 +115,7 @@ public class binPanel extends JPanel implements ActionListener, ItemListener, Ca
 		}
 
 		UI.jRP.setJMenuBar(this.menuBar);
-		this.add(this.frameFile = this.frame(var2));
+		this.add(this.frameFile = this.frame(args));
 		this.dFS.setDecimalSeparator('.');
 		this.fForm.setDecimalFormatSymbols(this.dFS);
 		this.dForm.setDecimalFormatSymbols(this.dFS);
@@ -140,7 +141,7 @@ public class binPanel extends JPanel implements ActionListener, ItemListener, Ca
 		var3.fill = 1;
 		var3.weighty = 1.0D;
 		++var3.gridy;
-		var2.add(this.hexV = new binEdit(this, this.isApplet), var3);
+		var2.add(this.hexV = new BinEdit(this, this.isApplet), var3);
 		var3.fill = 2;
 		var3.weighty = 0.0D;
 		++var3.gridy;
@@ -148,7 +149,7 @@ public class binPanel extends JPanel implements ActionListener, ItemListener, Ca
 		this.fJCB[2].setSelectedIndex(6);
 		if (var1 != null && 0 < var1.length) {
 			if (var1[0].equals("-slave")) {
-				(this.slave = new slaveT()).setDaemon(true);
+				(this.slave = new SlaveModule()).setDaemon(true);
 				this.slave.hexV = this.hexV;
 				this.slave.start();
 			} else {
@@ -160,7 +161,7 @@ public class binPanel extends JPanel implements ActionListener, ItemListener, Ca
 	}
 
 	public JComponent help() {
-		jEP var1 = new jEP((String) null, false);
+		HelpWindow var1 = new HelpWindow("", false);
 		var1.setContentType("text/html");
 		String var2 = Locale.getDefault().getLanguage();
 		var2 = "ReadMe" + Character.toUpperCase(var2.charAt(0)) + var2.charAt(1) + ".htm";
@@ -508,9 +509,9 @@ public class binPanel extends JPanel implements ActionListener, ItemListener, Ca
 					if (this.useFindChar) {
 						var17[1] = var22 == 3
 								? (long) Float.floatToRawIntBits(
-										var14 = 0 < var32 ? math.nextUp(var13) : math.nextDown(var13))
+										var14 = 0 < var32 ? BitMath.nextUp(var13) : BitMath.nextDown(var13))
 								: Double.doubleToRawLongBits(
-										var11 = 0 < var32 ? math.nextUp(var9) : math.nextDown(var9));
+										var11 = 0 < var32 ? BitMath.nextUp(var9) : BitMath.nextDown(var9));
 						if (var22 == 3) {
 							var18.append(var32 < 0 ? "&lt; " : "&gt; ")
 									.append(this.fForm.format(new BigDecimal((double) var13)))
@@ -638,9 +639,9 @@ public class binPanel extends JPanel implements ActionListener, ItemListener, Ca
 					char var8 = var20.charAt(var21);
 					var23 = var8 == Character.toLowerCase(var8) ? 1 : 2;
 					if (1 < var23) {
-						for (var22 = 0; var22 < accent.s.length; ++var22) {
-							if (-1 < accent.s[var22].indexOf(var8)) {
-								var23 = accent.s[var22].length();
+						for (var22 = 0; var22 < BinUtil.ACCENTS.length; ++var22) {
+							if (-1 < BinUtil.ACCENTS[var22].indexOf(var8)) {
+								var23 = BinUtil.ACCENTS[var22].length();
 								break;
 							}
 						}
@@ -651,8 +652,8 @@ public class binPanel extends JPanel implements ActionListener, ItemListener, Ca
 					for (var32 = 0; var32 < var23; ++var32) {
 						if (var23 < 3) {
 							var8 = var32 == 0 ? var8 : Character.toUpperCase(var8);
-						} else if (var22 < accent.s.length) {
-							var8 = accent.s[var22].charAt(var32);
+						} else if (var22 < BinUtil.ACCENTS.length) {
+							var8 = BinUtil.ACCENTS[var22].charAt(var32);
 						}
 
 						if (var22 == 6) {

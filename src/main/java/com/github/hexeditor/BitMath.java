@@ -1,6 +1,6 @@
 package com.github.hexeditor;
 
-class math {
+class BitMath {
 
 	public static double nextUp(double var0) {
 		if (!Double.isNaN(var0) && var0 != Double.POSITIVE_INFINITY) {
