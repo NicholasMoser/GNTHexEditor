@@ -104,7 +104,7 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 						KeyEvent.VK_V, KeyEvent.VK_F, KeyEvent.VK_I, KeyEvent.VK_D },
 				{ KeyEvent.VK_V, KeyEvent.VK_G, KeyEvent.VK_M, KeyEvent.VK_D, KeyEvent.VK_U, KeyEvent.VK_T,
 						KeyEvent.VK_H, KeyEvent.VK_L, KeyEvent.VK_W },
-				{ KeyEvent.VK_F1, KeyEvent.VK_F1 },
+				{ KeyEvent.VK_K, KeyEvent.VK_K },
 				{ KeyEvent.VK_H, KeyEvent.VK_PLUS, KeyEvent.VK_MINUS },
 				{ KeyEvent.VK_H, KeyEvent.VK_H } };
 		// These key codes are combined with the modifiers to chose a menu item that is
@@ -116,7 +116,7 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 						KeyEvent.VK_V, KeyEvent.VK_F, KeyEvent.VK_INSERT, KeyEvent.VK_DELETE },
 				{ KeyEvent.VK_V, KeyEvent.VK_G, KeyEvent.VK_M, KeyEvent.VK_D, KeyEvent.VK_U, KeyEvent.VK_T,
 						KeyEvent.VK_H, KeyEvent.VK_L, KeyEvent.VK_W },
-				{ KeyEvent.VK_F1, KeyEvent.VK_F1 },
+				{ KeyEvent.VK_K, KeyEvent.VK_K },
 				{ KeyEvent.VK_H, KeyEvent.VK_PLUS, KeyEvent.VK_MINUS },
 				{ KeyEvent.VK_H, KeyEvent.VK_H } };
 		// These modifiers are combined with the key codes to chose a menu item that is

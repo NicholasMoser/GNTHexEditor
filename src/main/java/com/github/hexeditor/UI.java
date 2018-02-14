@@ -16,12 +16,10 @@ import javax.swing.UIManager;
 public class UI extends JApplet
 {
 
-	private static final String link = "https://github.com/NicholasMoser/hexeditor";
-	private static final String appName = "hexeditor.jar";
-	private static final String version = "2014-07-29";
+	private static final long serialVersionUID = -3041749654374521418L;
 	private static boolean applet = false;
-	private static JPanel jP = new JPanel(new BorderLayout());
-	private static Runtime rT = Runtime.getRuntime();
+	private static JPanel panel = new JPanel(new BorderLayout());
+	private static Runtime runtime = Runtime.getRuntime();
 	private static String[] arg = null;
 	static final byte[] logo = new byte[]
 	{ (byte) 71, (byte) 73, (byte) 70, (byte) 56, (byte) 57, (byte) 97, (byte) 16, (byte) 0, (byte) 16, (byte) 0,
@@ -49,7 +47,7 @@ public class UI extends JApplet
 			;
 		}
 
-		jP.add(new BinPanel(applet, arg));
+		panel.add(new BinPanel(applet, arg));
 	}
 
 	public void init()
@@ -65,7 +63,7 @@ public class UI extends JApplet
 					"Center");
 		} else
 		{
-			this.getContentPane().add(jP, "Center");
+			this.getContentPane().add(panel, "Center");
 		}
 
 	}
@@ -113,9 +111,9 @@ public class UI extends JApplet
 				}
 			}
 
-			var1.append("\r\nµP\t" + rT.availableProcessors());
-			var1.append("\r\nMem(MiB), free/total/max: " + (rT.freeMemory() >> 20) + "/" + (rT.totalMemory() >> 20)
-					+ "/" + (rT.maxMemory() >> 20));
+			var1.append("\r\nµP\t" + runtime.availableProcessors());
+			var1.append("\r\nMem(MiB), free/total/max: " + (runtime.freeMemory() >> 20) + "/" + (runtime.totalMemory() >> 20)
+					+ "/" + (runtime.maxMemory() >> 20));
 			var1.append("\r\n\r\nError messages:");
 			System.err.println(var1);
 		} catch (Exception var6)
@@ -127,7 +125,7 @@ public class UI extends JApplet
 
 	static JPanel access$000()
 	{
-		return jP;
+		return panel;
 	}
 
 }

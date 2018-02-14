@@ -132,9 +132,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		{
 			this.jFC = new JFileChooser(System.getProperty("user.dir"));
 			this.jFC.setAcceptAllFileFilterUsed(false);
-			JFileChooser var10001 = this.jFC;
 			this.jFC.setDialogType(0);
-			var10001 = this.jFC;
 			this.jFC.setFileSelectionMode(2);
 			this.jFC.setMultiSelectionEnabled(false);
 			this.jFC.setDragEnabled(false);
@@ -350,9 +348,9 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 	protected void paintImg(Graphics var1, boolean var2)
 	{
-		char[] var3 = new char[]
+		char[] hexValues = new char[]
 		{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-		Color[] var4 = new Color[]
+		Color[] colors = new Color[]
 		{ Color.WHITE, Color.BLACK, new Color(50, 50, 50, 40), new Color(50, 50, 50, 80), Color.GREEN, Color.RED,
 				Color.BLUE, Color.YELLOW, Color.MAGENTA, Color.CYAN, Color.GREEN.darker(), new Color(0, 0, 0, 0) };
 		byte[] var5 = new byte[2];
@@ -367,10 +365,10 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			this.setSrc();
 		}
 
-		var1.setColor(var4[this.isOled ? 1 : 0]);
+		var1.setColor(colors[this.isOled ? 1 : 0]);
 		var1.fillRect(0, 0, this.getWidth(), this.getHeight());
 		var1.setFont(this.font);
-		var1.setColor(var4[this.isOled ? 7 : 6]);
+		var1.setColor(colors[this.isOled ? 7 : 6]);
 		this.hLimit = 0;
 
 		char var6;
@@ -386,7 +384,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 			for (var8 = 0; var8 < this.xPos.length; ++var8)
 			{
-				var6 = var3[(int) (var12 & 15L)];
+				var6 = hexValues[(int) (var12 & 15L)];
 				var1.drawString("" + var6, this.cShift[var6] + this.wChar * this.xPos[var8],
 						this.hLimit = this.hMargin + this.hChar * var9);
 				var12 >>= 4;
@@ -395,12 +393,12 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 		if (var12 < 0L)
 		{
-			var1.setColor(var4[5]);
+			var1.setColor(colors[5]);
 			var1.drawString("-- Limit = 0x7FFFFFFFFFFFFFFE = Long.MAX_VALUE-1 = 2^63-2 = 9223372036854775806 --", 0,
 					this.hMargin + this.hChar * var9 - 3);
 		}
 
-		var1.setColor(var4[9]);
+		var1.setColor(colors[9]);
 		boolean var16 = this.firstPos < this.lastPos;
 		var10 = this.pos2XY(var16 ? this.firstPos : this.lastPos);
 		var11 = this.pos2XY(!var16 ? this.firstPos : this.lastPos);
@@ -450,14 +448,14 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			var8 = var7 % 16;
 			var9 = var7 >> 4;
 			var5 = (byte[]) ((byte[]) ((byte[]) this.srcV.get(var7)));
-			var1.setColor(var4[var5[1] != 1 ? 11 : (this.isOled ? 2 : 2)]);
+			var1.setColor(colors[var5[1] != 1 ? 11 : (this.isOled ? 2 : 2)]);
 			var1.fillRect(this.wChar * this.xNib[var8 * 2] - 2, this.hChar * var9 + 3, this.wChar * 5, this.hChar - 4);
 			var1.fillRect(this.wChar * this.xTxt[var8], this.hChar * var9 + 3, this.wChar * 2, this.hChar - 4);
-			var1.setColor(var4[2 < var5[1] ? (this.isOled ? 0 : 5) : (this.isOled ? 4 : 1)]);
-			var6 = var3[(255 & var5[0]) >> 4];
+			var1.setColor(colors[2 < var5[1] ? (this.isOled ? 0 : 5) : (this.isOled ? 4 : 1)]);
+			var6 = hexValues[(255 & var5[0]) >> 4];
 			var1.drawString("" + var6, this.cShift[var6] + this.wChar * this.xNib[var8 * 2],
 					this.hMargin + this.hChar * var9);
-			var6 = var3[(255 & var5[0]) % 16];
+			var6 = hexValues[(255 & var5[0]) % 16];
 			var1.drawString("" + var6, this.cShift[var6] + this.wChar * this.xNib[var8 * 2 + 1],
 					this.hMargin + this.hChar * var9);
 			var6 = (char) (255 & var5[0]);
@@ -472,7 +470,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		}
 
 		var1.setPaintMode();
-		var1.setColor(var4[10]);
+		var1.setColor(colors[10]);
 		long var14;
 		Iterator var17;
 		if (this.markV != null && 0 < this.markV.size())
@@ -533,7 +531,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 		if (this.scrPos <= this.lastPos && this.lastPos - (long) this.maxPos <= this.scrPos)
 		{
-			var1.setColor(var4[8]);
+			var1.setColor(colors[8]);
 			var11 = this.pos2XY(this.lastPos);
 			if (this.caretVisible < 2 || !var2)
 			{
@@ -980,11 +978,10 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 	}
 
-	public void KeyFromMenu(int var1)
+	public void KeyFromMenu(int keyValue)
 	{
-		char[] var2 = new char[]
+		char[] hexValues = new char[]
 		{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-		boolean var3 = true;
 		boolean var4 = this.sav != null || this.find != null;
 		Object[] var8 = new Object[]
 		{ "<html>Valid entry are:<br>decimal, hexa (0x..) or percent (..%)" };
@@ -992,17 +989,17 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		String var6;
 		long var10;
 		long var12;
-		switch (var1)
+		switch (keyValue)
 		{
-		case 45:
-		case 107:
-		case 109:
-		case 521:
-			this.setGrid(this.fontSize + (var1 != 107 && var1 != 521 ? -3 : 3));
+		case KeyEvent.VK_MINUS:
+		case KeyEvent.VK_ADD:
+		case KeyEvent.VK_SUBTRACT:
+		case KeyEvent.VK_PLUS:
+			this.setGrid(this.fontSize + (keyValue != 107 && keyValue != 521 ? -3 : 3));
 			this.slideScr(this.scrPos, true);
 			this.rePaint();
 			break;
-		case 65:
+		case KeyEvent.VK_A:
 			if (this.virtualSize < 2147483648L)
 			{
 				this.firstPos = 0L;
@@ -1013,8 +1010,8 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				JOptionPane.showMessageDialog(this, "Selection cannot be greater than 2GiB");
 			}
 			break;
-		case 67:
-		case 88:
+		case KeyEvent.VK_C:
+		case KeyEvent.VK_X:
 			if (this.firstPos != this.lastPos && !var4 && !this.isApplet)
 			{
 				boolean var21 = this.firstPos < this.lastPos;
@@ -1043,8 +1040,8 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 						for (var5 = 0; var5 < this.XCV.size(); ++var5)
 						{
-							var22[2 * var5] = var2[(255 & ((byte[]) ((byte[]) this.XCV.get(var5)))[0]) >> 4];
-							var22[2 * var5 + 1] = var2[(255 & ((byte[]) ((byte[]) this.XCV.get(var5)))[0]) % 16];
+							var22[2 * var5] = hexValues[(255 & ((byte[]) ((byte[]) this.XCV.get(var5)))[0]) >> 4];
+							var22[2 * var5 + 1] = hexValues[(255 & ((byte[]) ((byte[]) this.XCV.get(var5)))[0]) % 16];
 						}
 					}
 
@@ -1054,14 +1051,14 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 					JOptionPane.showMessageDialog(this, "Can\'t copy text into the clipboard:\n" + var20);
 				}
 
-				if (var1 == 88)
+				if (keyValue == 88)
 				{
 					this.pushHObj(new EditState(var10, var12 - var10, 8), (String) null);
 				}
 			}
 			break;
-		case 68:
-		case 85:
+		case KeyEvent.VK_D:
+		case KeyEvent.VK_U:
 			var12 = 0L;
 			long var14 = this.virtualSize;
 			this.isNibLow = false;
@@ -1086,19 +1083,22 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				}
 			}
 
-			this.firstPos = this.lastPos = var1 == 85 ? var12 : var14;
+			this.firstPos = this.lastPos = keyValue == 85 ? var12 : var14;
 			this.slideScr(0L, true);
 			break;
-		case 70:
+		case KeyEvent.VK_F:
 			if (this.find == null)
 			{
 				this.topPanel.find();
 			}
 			break;
-		case 71:
-			this.goTo(JOptionPane.showInputDialog(this, var8, "Hexeditor.jar: GoTo", -1));
+		case KeyEvent.VK_G:
+			this.goTo(JOptionPane.showInputDialog(this, var8, "Hexeditor.jar: GoTo", JOptionPane.PLAIN_MESSAGE));
 			break;
-		case 77:
+		case KeyEvent.VK_K:
+			translateGNT4();
+			break;
+		case KeyEvent.VK_M:
 			Long var9 = new Long(this.lastPos);
 			if (this.markV.remove(var9))
 			{
@@ -1110,8 +1110,8 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 			this.rePaint();
 			break;
-		case 79:
-		case 81:
+		case KeyEvent.VK_O:
+		case KeyEvent.VK_Q:
 			if (!var4 && !this.isApplet)
 			{
 				if (this.rAF == null && !this.undoStack.empty() || this.rAF != null && 1 < this.undoStack.size())
@@ -1130,7 +1130,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				}
 
 				this.closeFile();
-				if (var1 == 79 && this.jFC.showOpenDialog(this) == 0)
+				if (keyValue == 79 && this.jFC.showOpenDialog(this) == 0)
 				{
 					this.loadFile(this.jFC.getSelectedFile());
 				}
@@ -1139,7 +1139,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				JOptionPane.showMessageDialog(this, "Busy, save or find running.");
 			}
 			break;
-		case 80:
+		case KeyEvent.VK_P:
 			var5 = this.wChar * (this.xTxt[15] + 9);
 			var5 = var5 < this.getWidth() ? var5 : this.getWidth();
 			BufferedImage var16 = new BufferedImage(var5, this.hLimit + 10, 8);
@@ -1162,13 +1162,13 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				var19.printStackTrace();
 			}
 			break;
-		case 83:
+		case KeyEvent.VK_S:
 			if (this.sav == null && !this.isApplet)
 			{
 				this.save1();
 			}
 			break;
-		case 84:
+		case KeyEvent.VK_T:
 			this.nibArea = !this.nibArea;
 			this.isNibLow = false;
 			this.timer.stop();
@@ -1176,17 +1176,17 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			this.caretVisible = 0;
 			this.timer.restart();
 			break;
-		case 86:
+		case KeyEvent.VK_V:
 			if (!var4 && !this.isApplet && (var6 = this.fromClipboard(true)) != null)
 			{
 				this.pushHObj(new EditState(this.lastPos, (long) var6.length(), 4), var6);
 			}
 			break;
-		case 87:
+		case KeyEvent.VK_W:
 			this.isOled = !this.isOled;
 			this.rePaint();
 			break;
-		case 89:
+		case KeyEvent.VK_Y:
 			if (this.eObjCtrlY != null)
 			{
 				this.pushHObj(this.eObjCtrlY, (String) null);
@@ -1204,7 +1204,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				this.byteCtrlY = null;
 			}
 			break;
-		case 90:
+		case KeyEvent.VK_Z:
 			if (!var4 && !this.undoStack.empty() && (1 < this.undoStack.size()
 					|| 1 == this.undoStack.size() && 2 < ((EditState) this.undoStack.lastElement()).a1))
 			{
@@ -1238,11 +1238,11 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				this.slideScr(this.scrPos, true);
 			}
 			break;
-		case 127:
-		case 155:
+		case KeyEvent.VK_DELETE:
+		case KeyEvent.VK_INSERT:
 			if (!var4)
 			{
-				this.InsDelB[var1 == 127 ? 0 : 1].setSelected(true);
+				this.InsDelB[keyValue == 127 ? 0 : 1].setSelected(true);
 				this.InsDelTF.setEnabled(true);
 				String var7 = this.fromClipboard(false);
 				if (JOptionPane.showConfirmDialog(this, this.InsDelOption, "Hexeditor.jar: DEL/INS", 2) != 2)
@@ -1376,8 +1376,6 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 	protected void String2long(String var1)
 	{
 		this.longInput = -1L;
-		boolean var3 = true;
-		boolean var4 = true;
 		int var5 = -1;
 		int var6 = 0;
 		int var2;
@@ -1389,8 +1387,6 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			boolean var10 = var1.startsWith("0x") || var1.startsWith("Ox") || var1.startsWith("ox");
 			String var11 = "yzafpnµm kMGTPEZY";
 			String var12 = "KMGTPE";
-			String[] var10000 = new String[]
-			{ "c", "d", "da", "h" };
 			var1.replaceAll(" ", "");
 			if (1 < var1.length() && !var10)
 			{
@@ -1467,7 +1463,6 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 	{
 		boolean var3 = this.sav != null || this.find != null;
 		char var5 = var1.getKeyChar();
-		boolean var6 = false;
 		int var7 = "0123456789ABCDEFabcdef".indexOf(Character.toUpperCase(var5));
 		if (!var1.isAltDown() && !var1.isControlDown() && !Character.isISOControl(var5) && var5 < 256
 				&& var1.getSource() == this && 0L < this.virtualSize && !var3 && (!this.nibArea || -1 < var7))
@@ -1894,5 +1889,160 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		this.firstPos = var1;
 		this.isNibLow = false;
 		this.slideScr(0L, true);
+	}
+	
+	/**
+	 * Opens a dialog that allows you to translate text for Naruto GNT4.
+	 */
+	private void translateGNT4()
+	{
+		// TODO: translate GNT4 text
+		int endianFlag = getEndianness();
+		int pointerSizeFlag = getPointerSize();
+		int pointerTableStart = getPointerTableStart();
+		int pointerTableEnd = getPointerTableEnd();
+		boolean appendText = appendText();
+		int newTextLocationOffset = -1;
+		if (appendText)
+		{
+			newTextLocationOffset = getNewTextLocationOffset();
+		}
+		System.out.println("endianFlag: " + endianFlag);
+		System.out.println("pointerSizeFlag: " + pointerSizeFlag);
+		System.out.println("pointerTableStart: " + pointerTableStart);
+		System.out.println("pointerTableEnd: " + pointerTableEnd);
+		System.out.println("appendText: " + Boolean.toString(appendText));
+		System.out.println("newTextLocationOffset: " + newTextLocationOffset);
+	}
+	
+	/**
+	 * Asks the user for the endianness. The two choices are little and big endian.
+	 * @return 0 for little endian, 1 for big endian
+	 */
+	private int getEndianness()
+	{
+		String[] options = new String[] {"LittleEndian", "BigEndian"};
+		String endianMsg = "Which endian are you working with?\n";
+		endianMsg += "Little endian is for ASCII (main.dol, gameplay assets)\n";
+		endianMsg += "Big endian is for Shift-JIS (.seq files, menu assets)\n";
+		String endianTitle = "Endianness";
+		int endianFlag = JOptionPane.showOptionDialog(this, endianMsg, endianTitle, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+		        null, options, options[0]);
+		return endianFlag;
+	}
+	
+	/**
+	 * Asks the user for the pointer size. The two choices are 4 bytes and 8 bytes.
+	 * @return 0 for 4 bytes, 1 for 8 bytes
+	 */
+	private int getPointerSize()
+	{
+		String[] options = new String[] {"4-byte Pointer", "8-byte Pointer"};
+		String pointerSizeMsg = "Which pointer size are you working with?\n";
+		pointerSizeMsg += "4-byte: (xx xx)\n";
+		pointerSizeMsg += "8-byte: (xx xx xx xx)\n";
+		String pointerSizeTitle = "Pointer Size";
+		int pointerSize = JOptionPane.showOptionDialog(this, pointerSizeMsg, pointerSizeTitle, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+		        null, options, options[0]);
+		return pointerSize;
+	}
+
+	/**
+	 * Asks the user for the pointer table start. Only decimal (base-10) values are allowed).
+	 * @return the pointer table start value
+	 */
+	private int getPointerTableStart()
+	{
+		boolean validValue = false;
+		int value = 0;
+		while(!validValue)
+		{
+			String pointerTableStartMsg = "Please enter the start of the pointer table.\n";
+			pointerTableStartMsg += "Note: Input it as a decimal (base-10) value.\n";
+			pointerTableStartMsg += "Example: 258";
+			String pointerTableStartTitle = "Pointer Table Start";
+			String inputValue = JOptionPane.showInputDialog(this, pointerTableStartMsg, pointerTableStartTitle, JOptionPane.PLAIN_MESSAGE);
+			try
+			{
+				value = Integer.valueOf(inputValue);
+				validValue = true;
+			}
+			catch (NumberFormatException e)
+			{
+				JOptionPane.showMessageDialog(this, "Please enter a valid decimal (base-10) value.");
+			}
+		}
+		return value;
+	}
+
+	/**
+	 * Asks the user for the pointer table end. Only decimal (base-10) values are allowed).
+	 * @return the pointer table end value
+	 */
+	private int getPointerTableEnd()
+	{
+		boolean validValue = false;
+		int value = 0;
+		while(!validValue)
+		{
+			String pointerTableEndMsg = "Please enter the end of the pointer table.\n";
+			pointerTableEndMsg += "Note: Input it as a decimal (base-10) value.\n";
+			pointerTableEndMsg += "Example: 258";
+			String pointerTableEndTitle = "Pointer Table End";
+			String inputValue = JOptionPane.showInputDialog(this, pointerTableEndMsg, pointerTableEndTitle, JOptionPane.PLAIN_MESSAGE);
+			try
+			{
+				value = Integer.valueOf(inputValue);
+				validValue = true;
+			}
+			catch (NumberFormatException e)
+			{
+				JOptionPane.showMessageDialog(this, "Please enter a valid decimal (base-10) value.");
+			}
+		}
+		return value;
+	}
+	
+	/**
+	 * Asks the user if they wish to insert text at the end of the document.
+	 * @return if the user wishes to insert text at the end of the document.
+	 */
+	private boolean appendText()
+	{
+		String[] options = new String[] {"Yes", "No"};
+		String appendTextMsg = "Do you wish to insert text at the end of the file?\n";
+		appendTextMsg += "Note: This is primarily used for .seq editing.\n";
+		String appendTextTitle = "Append Text";
+		int appendTextFlag = JOptionPane.showOptionDialog(this, appendTextMsg, appendTextTitle, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+		        null, options, options[0]);
+		return appendTextFlag == 0 ? true : false;
+	}
+
+	/**
+	 * Asks the user for the new text location offset. Only decimal (base-10) values are allowed).
+	 * @return the pointer table start value
+	 */
+	private int getNewTextLocationOffset()
+	{
+		boolean validValue = false;
+		int value = 0;
+		while(!validValue)
+		{
+			String newTextLocationOffsetMsg = "Please enter the new text location offset.\n";
+			newTextLocationOffsetMsg += "Note: Input it as a decimal (base-10) value.\n";
+			newTextLocationOffsetMsg += "Example: 258";
+			String newTextLocationOffsetTitle = "Pointer Table Start";
+			String inputValue = JOptionPane.showInputDialog(this, newTextLocationOffsetMsg, newTextLocationOffsetTitle, JOptionPane.PLAIN_MESSAGE);
+			try
+			{
+				value = Integer.valueOf(inputValue);
+				validValue = true;
+			}
+			catch (NumberFormatException e)
+			{
+				JOptionPane.showMessageDialog(this, "Please enter a valid decimal (base-10) value.");
+			}
+		}
+		return value;
 	}
 }
