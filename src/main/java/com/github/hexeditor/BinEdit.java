@@ -90,7 +90,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 	Byte byteCtrlY = null;
 	EditState eObj = null;
 	EditState eObjCtrlY = null;
-	File f1 = null;
+	File loadedFile = null;
 	public BinPanel topPanel;
 	SaveModule sav;
 	FindModule find;
@@ -161,7 +161,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			}
 		}
 
-		this.f1 = null;
+		this.loadedFile = null;
 		this.undoStack.clear();
 		this.doVirtual();
 		System.gc();
@@ -169,15 +169,15 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 	public void loadFile(File var1)
 	{
-		this.f1 = var1;
-		this.topPanel.JTFile.setText(this.f1.toString() + (this.f1.canWrite() ? "" : " ( ReadOnly ) "));
+		this.loadedFile = var1;
+		this.topPanel.JTFile.setText(this.loadedFile.toString() + (this.loadedFile.canWrite() ? "" : " ( ReadOnly ) "));
 
 		try
 		{
-			this.rAF = new RandomAccessFile(this.f1, this.f1.canWrite() ? "rw" : "r");
+			this.rAF = new RandomAccessFile(this.loadedFile, this.loadedFile.canWrite() ? "rw" : "r");
 			this.jSbSource = false;
 			this.jSB.setValue(0);
-			this.undoStack.push(new EditState(0L, this.f1.length(), 0));
+			this.undoStack.push(new EditState(0L, this.loadedFile.length(), 0));
 			this.doVirtual();
 			this.focus();
 		} catch (Exception var3)
@@ -1096,7 +1096,15 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			this.goTo(JOptionPane.showInputDialog(this, var8, "Hexeditor.jar: GoTo", JOptionPane.PLAIN_MESSAGE));
 			break;
 		case KeyEvent.VK_K:
-			translateGNT4();
+			if (loadedFile != null)
+			{
+				GNT4Translator gnt4Translator = new GNT4Translator(this);
+				gnt4Translator.translateGNT4();
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, "Please open a file in the hex editor.");
+			}
 			break;
 		case KeyEvent.VK_M:
 			Long var9 = new Long(this.lastPos);
@@ -1144,7 +1152,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			var5 = var5 < this.getWidth() ? var5 : this.getWidth();
 			BufferedImage var16 = new BufferedImage(var5, this.hLimit + 10, 8);
 			this.paintImg(var16.getGraphics(), false);
-			var6 = this.f1.getPath();
+			var6 = this.loadedFile.getPath();
 			var5 = 1;
 
 			File var17;
@@ -1787,13 +1795,13 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		fileChooser.setMultiSelectionEnabled(false);
 		fileChooser.setDragEnabled(false);
 		fileChooser.setFileFilter(new BinFileFilter());
-		if (this.f1 != null && this.f1.canWrite())
+		if (this.loadedFile != null && this.loadedFile.canWrite())
 		{
-			fileChooser.setSelectedFile(this.f1);
+			fileChooser.setSelectedFile(this.loadedFile);
 		} else
 		{
 			fileChooser.setCurrentDirectory(
-					this.f1 == null ? new File(System.getProperty("user.dir")) : this.f1.getParentFile());
+					this.loadedFile == null ? new File(System.getProperty("user.dir")) : this.loadedFile.getParentFile());
 		}
 
 		if (fileChooser.showSaveDialog(this) != 0)
@@ -1808,7 +1816,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			}
 
 			(this.sav = new SaveModule()).setDaemon(true);
-			this.sav.f1 = this.f1;
+			this.sav.f1 = this.loadedFile;
 			this.sav.f2 = fileChooser.getSelectedFile();
 			this.sav.v1 = this.v1;
 			this.sav.hexV = this;
@@ -1822,19 +1830,19 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 	{
 		if (var1 != null)
 		{
-			this.f1 = new File(var1, "");
-			this.topPanel.JTFile.setText(this.f1.toString() + (this.f1.canWrite() ? "" : " (ReadOnly)"));
+			this.loadedFile = new File(var1, "");
+			this.topPanel.JTFile.setText(this.loadedFile.toString() + (this.loadedFile.canWrite() ? "" : " (ReadOnly)"));
 
 			try
 			{
-				this.rAF = new RandomAccessFile(this.f1, "rw");
+				this.rAF = new RandomAccessFile(this.loadedFile, "rw");
 			} catch (Exception var3)
 			{
 				System.err.println(var3);
 			}
 
 			this.undoStack.clear();
-			this.undoStack.push(new EditState(0L, this.f1.length(), 0));
+			this.undoStack.push(new EditState(0L, this.loadedFile.length(), 0));
 			this.doVirtual();
 		}
 
@@ -1855,7 +1863,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			}
 
 			(this.find = new FindModule()).setDaemon(true);
-			this.find.f1 = this.f1;
+			this.find.f1 = this.loadedFile;
 			this.find.v1 = this.v1;
 			this.find.isApplet = this.isApplet;
 			this.find.ignoreCase = this.topPanel.useFindChar;
@@ -1889,160 +1897,5 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		this.firstPos = var1;
 		this.isNibLow = false;
 		this.slideScr(0L, true);
-	}
-	
-	/**
-	 * Opens a dialog that allows you to translate text for Naruto GNT4.
-	 */
-	private void translateGNT4()
-	{
-		// TODO: translate GNT4 text
-		int endianFlag = getEndianness();
-		int pointerSizeFlag = getPointerSize();
-		int pointerTableStart = getPointerTableStart();
-		int pointerTableEnd = getPointerTableEnd();
-		boolean appendText = appendText();
-		int newTextLocationOffset = -1;
-		if (appendText)
-		{
-			newTextLocationOffset = getNewTextLocationOffset();
-		}
-		System.out.println("endianFlag: " + endianFlag);
-		System.out.println("pointerSizeFlag: " + pointerSizeFlag);
-		System.out.println("pointerTableStart: " + pointerTableStart);
-		System.out.println("pointerTableEnd: " + pointerTableEnd);
-		System.out.println("appendText: " + Boolean.toString(appendText));
-		System.out.println("newTextLocationOffset: " + newTextLocationOffset);
-	}
-	
-	/**
-	 * Asks the user for the endianness. The two choices are little and big endian.
-	 * @return 0 for little endian, 1 for big endian
-	 */
-	private int getEndianness()
-	{
-		String[] options = new String[] {"LittleEndian", "BigEndian"};
-		String endianMsg = "Which endian are you working with?\n";
-		endianMsg += "Little endian is for ASCII (main.dol, gameplay assets)\n";
-		endianMsg += "Big endian is for Shift-JIS (.seq files, menu assets)\n";
-		String endianTitle = "Endianness";
-		int endianFlag = JOptionPane.showOptionDialog(this, endianMsg, endianTitle, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
-		        null, options, options[0]);
-		return endianFlag;
-	}
-	
-	/**
-	 * Asks the user for the pointer size. The two choices are 4 bytes and 8 bytes.
-	 * @return 0 for 4 bytes, 1 for 8 bytes
-	 */
-	private int getPointerSize()
-	{
-		String[] options = new String[] {"4-byte Pointer", "8-byte Pointer"};
-		String pointerSizeMsg = "Which pointer size are you working with?\n";
-		pointerSizeMsg += "4-byte: (xx xx)\n";
-		pointerSizeMsg += "8-byte: (xx xx xx xx)\n";
-		String pointerSizeTitle = "Pointer Size";
-		int pointerSize = JOptionPane.showOptionDialog(this, pointerSizeMsg, pointerSizeTitle, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
-		        null, options, options[0]);
-		return pointerSize;
-	}
-
-	/**
-	 * Asks the user for the pointer table start. Only decimal (base-10) values are allowed).
-	 * @return the pointer table start value
-	 */
-	private int getPointerTableStart()
-	{
-		boolean validValue = false;
-		int value = 0;
-		while(!validValue)
-		{
-			String pointerTableStartMsg = "Please enter the start of the pointer table.\n";
-			pointerTableStartMsg += "Note: Input it as a decimal (base-10) value.\n";
-			pointerTableStartMsg += "Example: 258";
-			String pointerTableStartTitle = "Pointer Table Start";
-			String inputValue = JOptionPane.showInputDialog(this, pointerTableStartMsg, pointerTableStartTitle, JOptionPane.PLAIN_MESSAGE);
-			try
-			{
-				value = Integer.valueOf(inputValue);
-				validValue = true;
-			}
-			catch (NumberFormatException e)
-			{
-				JOptionPane.showMessageDialog(this, "Please enter a valid decimal (base-10) value.");
-			}
-		}
-		return value;
-	}
-
-	/**
-	 * Asks the user for the pointer table end. Only decimal (base-10) values are allowed).
-	 * @return the pointer table end value
-	 */
-	private int getPointerTableEnd()
-	{
-		boolean validValue = false;
-		int value = 0;
-		while(!validValue)
-		{
-			String pointerTableEndMsg = "Please enter the end of the pointer table.\n";
-			pointerTableEndMsg += "Note: Input it as a decimal (base-10) value.\n";
-			pointerTableEndMsg += "Example: 258";
-			String pointerTableEndTitle = "Pointer Table End";
-			String inputValue = JOptionPane.showInputDialog(this, pointerTableEndMsg, pointerTableEndTitle, JOptionPane.PLAIN_MESSAGE);
-			try
-			{
-				value = Integer.valueOf(inputValue);
-				validValue = true;
-			}
-			catch (NumberFormatException e)
-			{
-				JOptionPane.showMessageDialog(this, "Please enter a valid decimal (base-10) value.");
-			}
-		}
-		return value;
-	}
-	
-	/**
-	 * Asks the user if they wish to insert text at the end of the document.
-	 * @return if the user wishes to insert text at the end of the document.
-	 */
-	private boolean appendText()
-	{
-		String[] options = new String[] {"Yes", "No"};
-		String appendTextMsg = "Do you wish to insert text at the end of the file?\n";
-		appendTextMsg += "Note: This is primarily used for .seq editing.\n";
-		String appendTextTitle = "Append Text";
-		int appendTextFlag = JOptionPane.showOptionDialog(this, appendTextMsg, appendTextTitle, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
-		        null, options, options[0]);
-		return appendTextFlag == 0 ? true : false;
-	}
-
-	/**
-	 * Asks the user for the new text location offset. Only decimal (base-10) values are allowed).
-	 * @return the pointer table start value
-	 */
-	private int getNewTextLocationOffset()
-	{
-		boolean validValue = false;
-		int value = 0;
-		while(!validValue)
-		{
-			String newTextLocationOffsetMsg = "Please enter the new text location offset.\n";
-			newTextLocationOffsetMsg += "Note: Input it as a decimal (base-10) value.\n";
-			newTextLocationOffsetMsg += "Example: 258";
-			String newTextLocationOffsetTitle = "Pointer Table Start";
-			String inputValue = JOptionPane.showInputDialog(this, newTextLocationOffsetMsg, newTextLocationOffsetTitle, JOptionPane.PLAIN_MESSAGE);
-			try
-			{
-				value = Integer.valueOf(inputValue);
-				validValue = true;
-			}
-			catch (NumberFormatException e)
-			{
-				JOptionPane.showMessageDialog(this, "Please enter a valid decimal (base-10) value.");
-			}
-		}
-		return value;
 	}
 }
