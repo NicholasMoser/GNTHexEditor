@@ -1185,9 +1185,9 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			this.timer.restart();
 			break;
 		case KeyEvent.VK_V:
-			if (!var4 && !this.isApplet && (var6 = this.fromClipboard(true)) != null)
+			if (!var4 && !this.isApplet && (var6 = fromClipboard(true)) != null)
 			{
-				this.pushHObj(new EditState(this.lastPos, (long) var6.length(), 4), var6);
+				pushHObj(new EditState(this.lastPos, (long) var6.length(), 4), var6);
 			}
 			break;
 		case KeyEvent.VK_W:
@@ -1252,7 +1252,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			{
 				this.InsDelB[keyValue == 127 ? 0 : 1].setSelected(true);
 				this.InsDelTF.setEnabled(true);
-				String var7 = this.fromClipboard(false);
+				String var7 = fromClipboard(false);
 				if (JOptionPane.showConfirmDialog(this, this.InsDelOption, "Hexeditor.jar: DEL/INS", 2) != 2)
 				{
 					label298:
@@ -1305,80 +1305,101 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		this.focus();
 	}
 
-	private void pushHObj(EditState var1, String var2)
+	public void pushHObj(EditState editedState, String newCharacters)
 	{
-		if (!this.undoStack.isEmpty())
+		if (!undoStack.isEmpty())
 		{
-			(this.eObj = (EditState) this.undoStack.lastElement()).isEditing = false;
+			(eObj = (EditState) undoStack.lastElement()).isEditing = false;
 		}
 
-		if (var2 != null)
+		if (newCharacters != null)
 		{
-			for (int var3 = 0; var3 < var2.length(); ++var3)
+			for (byte charByte : newCharacters.getBytes())
 			{
-				var1.stack.push(Byte.valueOf((byte) var2.charAt(var3)));
+				editedState.stack.push(charByte);
 			}
 		}
 
-		this.undoStack.push(var1);
-		this.firstPos = this.lastPos;
-		this.doVirtual();
+		undoStack.push(editedState);
+		firstPos = lastPos;
+		doVirtual();
+	}
+	
+	public void pushHObjBytes(EditState editedState, byte[] charBytes)
+	{
+		if (!undoStack.isEmpty())
+		{
+			(eObj = (EditState) undoStack.lastElement()).isEditing = false;
+		}
+
+		if (charBytes != null)
+		{
+			for (byte charByte : charBytes)
+			{
+				editedState.stack.push(charByte);
+			}
+		}
+
+		undoStack.push(editedState);
+		firstPos = lastPos;
+		doVirtual();
 	}
 
-	private String fromClipboard(boolean var1)
+	private String fromClipboard(boolean showErrorMessages)
 	{
-		String var4 = null;
+		String text = null;
 		StringBuffer var5 = new StringBuffer();
 
 		try
 		{
-			var4 = (String) this.clipboard.getContents((Object) null).getTransferData(DataFlavor.stringFlavor);
-			if (var4 == null || var4.length() < 1)
+			text = (String) clipboard.getContents((Object) null).getTransferData(DataFlavor.stringFlavor);
+			if (text == null || text.length() < 1)
 			{
 				throw new Exception("nothing to paste");
 			}
 
-			if (Long.MAX_VALUE < this.lastPos + (long) var4.length())
+			if (Long.MAX_VALUE < lastPos + (long) text.length())
 			{
 				throw new Exception("file cannot exceed Long.MAX_VALUE");
 			}
 
-			if (this.nibArea)
+			if (nibArea)
 			{
-				if (var4.length() % 2 != 0)
+				if (text.length() % 2 != 0)
 				{
 					throw new Exception("Nibble area, String must be an hexa string with odd characters.");
 				}
 
-				var4 = var4.toUpperCase();
+				text = text.toUpperCase();
 
-				for (int var3 = 0; var3 < var4.length(); var3 += 2)
+				for (int charIndex = 0; charIndex < text.length(); charIndex += 2)
 				{
-					if ("0123456789ABCDEFabcdef".indexOf(var4.charAt(var3)) < 0
-							|| "0123456789ABCDEFabcdef".indexOf(var4.charAt(var3 + 1)) < 0)
+					if ("0123456789ABCDEFabcdef".indexOf(text.charAt(charIndex)) < 0
+							|| "0123456789ABCDEFabcdef".indexOf(text.charAt(charIndex + 1)) < 0)
 					{
 						throw new Exception("Nibble area, String must be an hexa string.");
 					}
-
-					var5.append((char) (("0123456789ABCDEFabcdef".indexOf(var4.charAt(var3)) << 4)
-							+ "0123456789ABCDEFabcdef".indexOf(var4.charAt(var3 + 1))));
+					// This will get the character representations of the byte
+					// Example: 4 for the first and 8 for the second will append the char H
+					var5.append((char) (("0123456789ABCDEFabcdef".indexOf(text.charAt(charIndex)) << 4)
+							+ "0123456789ABCDEFabcdef".indexOf(text.charAt(charIndex + 1))));
 				}
 
-				var4 = var5.toString();
+				text = var5.toString();
 			}
 
-			this.clipboardSize = (long) var4.length();
-		} catch (Exception var7)
+			clipboardSize = (long) text.length();
+		} catch (Exception e)
 		{
-			var4 = null;
-			this.clipboardSize = 0L;
-			if (var1)
+			text = null;
+			clipboardSize = 0L;
+			if (showErrorMessages)
 			{
-				JOptionPane.showMessageDialog(this, "Can\'t paste text from the clipboard:\n" + var7);
+				JOptionPane.showMessageDialog(this, "Can\'t paste text from the clipboard:\n" + e);
 			}
 		}
 
-		return var4;
+		return text;
 	}
 
 	protected void String2long(String var1)

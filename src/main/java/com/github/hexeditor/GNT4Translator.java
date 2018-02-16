@@ -1,6 +1,5 @@
 package com.github.hexeditor;
 
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
 public class GNT4Translator
@@ -18,8 +17,11 @@ public class GNT4Translator
 	public void translateGNT4()
 	{
 		// TODO: translate GNT4 text
-		int endianFlag = getEndianness();
-		int pointerSizeFlag = getPointerSize();
+		
+		// I don't think these two are actually needed.
+		// int endianFlag = getEndianness();
+		// int pointerSizeFlag = getPointerSize();
+		
 		int pointerTableStart = getPointerTableStart();
 		int pointerTableEnd = getPointerTableEnd();
 		boolean appendText = appendText();
@@ -28,12 +30,40 @@ public class GNT4Translator
 		{
 			newTextLocationOffset = getNewTextLocationOffset();
 		}
-		System.out.println("endianFlag: " + endianFlag);
-		System.out.println("pointerSizeFlag: " + pointerSizeFlag);
-		System.out.println("pointerTableStart: " + pointerTableStart);
-		System.out.println("pointerTableEnd: " + pointerTableEnd);
-		System.out.println("appendText: " + Boolean.toString(appendText));
-		System.out.println("newTextLocationOffset: " + newTextLocationOffset);
+		
+		byte pointerTableStartByte = getByte(pointerTableStart);
+		byte pointerTableEndByte = getByte(pointerTableEnd);
+		byte[] bytes = new byte[2];
+		bytes[0] = pointerTableStartByte;
+		bytes[1] = pointerTableEndByte;
+		System.out.println("Hex at pointer start: " + firstHex(pointerTableStartByte) + secondHex(pointerTableStartByte));
+		System.out.println("Hex at pointer end: " + firstHex(pointerTableEndByte) + secondHex(pointerTableEndByte));
+				
+		int position = pointerTableEnd;
+		editor.pushHObjBytes(new EditState(position, (long) bytes.length, 4), bytes);
+	}
+	
+	/**
+	 * Helper function to get the byte from the list of bytes at a specific location.
+	 * Each byte includes a color which is discarded. 
+	 * 
+	 * @param offset the location of the byte to retrieve from the current file
+	 * @return the byte at the specified location
+	 */
+	private byte getByte(int offset)
+	{
+		byte[] byteColorCombo = (byte[]) editor.srcV.get(offset);
+		return byteColorCombo[0];
+	}
+	
+	private String firstHex(byte fullByte)
+	{
+		return Integer.toHexString((255 & fullByte) >> 4).toUpperCase();
+	}
+	
+	private String secondHex(byte fullByte)
+	{
+		return Integer.toHexString((255 & fullByte) % 16).toUpperCase();
 	}
 	
 	/**
