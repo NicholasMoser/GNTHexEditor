@@ -15,7 +15,7 @@ class SaveModule extends Thread
 
 	File f1;
 	File f2;
-	Vector v1;
+	Vector virtual;
 	BinEdit hexV;
 	JProgressBar jPBar;
 	private long time;
@@ -25,21 +25,21 @@ class SaveModule extends Thread
 	public void run()
 	{
 		int var3 = 0;
-		FileInputStream var5 = null;
+		FileInputStream fileInputStream = null;
 		byte[] var8 = new byte[2097152];
-		if (this.v1 != null && this.v1.size() != 0)
+		if (this.virtual != null && this.virtual.size() != 0)
 		{
 			long var14 = 0L;
 			this.pos = 0L;
 			this.time = System.currentTimeMillis();
-			this.virtualSize = ((EditState) this.v1.lastElement()).p2;
+			this.virtualSize = ((EditState) this.virtual.lastElement()).virtualSize;
 			this.jPBar.setMaximum(1073741824);
 
 			EditState var9;
-			while (var3 < this.v1.size())
+			while (var3 < this.virtual.size())
 			{
-				var9 = (EditState) this.v1.get(var3);
-				if (this.pos < var9.p2)
+				var9 = (EditState) this.virtual.get(var3);
+				if (this.pos < var9.virtualSize)
 				{
 					break;
 				}
@@ -53,15 +53,15 @@ class SaveModule extends Thread
 			{
 				if (this.f1 != null)
 				{
-					var5 = new FileInputStream(this.f1);
+					fileInputStream = new FileInputStream(this.f1);
 				}
 
 				File var6 = new File(this.f2.getPath() + ".TMP");
 
-				for (var16 = new BufferedOutputStream(new FileOutputStream(var6), 2097152); var3 < this.v1.size()
+				for (var16 = new BufferedOutputStream(new FileOutputStream(var6), 2097152); var3 < this.virtual.size()
 						&& this.next(); ++var3)
 				{
-					var9 = (EditState) this.v1.get(var3);
+					var9 = (EditState) this.virtual.get(var3);
 					long var10 = var9.p1 - var9.offset;
 					this.pos = var9.p1;
 					if (var9.o.a1 != 4 && var9.o.a1 != 2 && (var9.o.a1 != 6 || 1 >= var9.o.stack.size()))
@@ -72,9 +72,9 @@ class SaveModule extends Thread
 						{
 							Arrays.fill(var8, (var9.o.stack.get(0)).byteValue());
 
-							while (this.pos < var9.p2 && this.next())
+							while (this.pos < var9.virtualSize && this.next())
 							{
-								var12 = var9.p2 - this.pos;
+								var12 = var9.virtualSize - this.pos;
 								var2 = var12 < 2097152L ? (int) var12 : 2097152;
 								var16.write(var8, 0, var2);
 								this.pos += (long) var2;
@@ -82,15 +82,15 @@ class SaveModule extends Thread
 							}
 						} else
 						{
-							for (var12 = this.pos - var10; var14 < var12; var14 += var5.skip(var12 - var14))
+							for (var12 = this.pos - var10; var14 < var12; var14 += fileInputStream.skip(var12 - var14))
 							{
 								;
 							}
 
-							while (this.pos < var9.p2 && this.next())
+							while (this.pos < var9.virtualSize && this.next())
 							{
-								var12 = var9.p2 - this.pos;
-								var2 = var5.read(var8, 0, var12 < 2097152L ? (int) var12 : 2097152);
+								var12 = var9.virtualSize - this.pos;
+								var2 = fileInputStream.read(var8, 0, var12 < 2097152L ? (int) var12 : 2097152);
 								if (var2 <= 0)
 								{
 									throw new IOException(var2 == 0 ? "Unable to access file" : "EOF");
@@ -104,7 +104,7 @@ class SaveModule extends Thread
 						}
 					} else
 					{
-						while (this.pos < var9.p2 && this.next())
+						while (this.pos < var9.virtualSize && this.next())
 						{
 							var16.write((var9.o.stack.get((int) (this.pos - var10))).byteValue());
 							++this.pos;
@@ -115,9 +115,9 @@ class SaveModule extends Thread
 				}
 
 				var16.close();
-				if (var5 != null)
+				if (fileInputStream != null)
 				{
-					var5.close();
+					fileInputStream.close();
 				}
 
 				if (this.hexV.rAF != null)
@@ -137,11 +137,11 @@ class SaveModule extends Thread
 				}
 
 				var6.renameTo(this.f2);
-				this.hexV.save2(this.f2);
+				this.hexV.saveCleanUp(this.f2);
 			} catch (Exception var20)
 			{
 				JOptionPane.showMessageDialog(this.hexV, var20);
-				this.hexV.save2((File) null);
+				this.hexV.saveCleanUp((File) null);
 			}
 
 			try
@@ -154,7 +154,7 @@ class SaveModule extends Thread
 
 			try
 			{
-				var5.close();
+				fileInputStream.close();
 			} catch (Exception var18)
 			{
 				;

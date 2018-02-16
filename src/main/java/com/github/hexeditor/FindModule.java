@@ -33,7 +33,7 @@ class FindModule extends Thread
 		if (this.v1 != null && this.v1.size() != 0)
 		{
 			long var12 = 0L;
-			this.virtualSize = ((EditState) this.v1.lastElement()).p2;
+			this.virtualSize = ((EditState) this.v1.lastElement()).virtualSize;
 			this.jPBar.setMaximum(1073741824);
 			int var2;
 			int var4;
@@ -59,7 +59,7 @@ class FindModule extends Thread
 			for (var18 = 0; var18 < this.v1.size(); ++var18)
 			{
 				var7 = (EditState) this.v1.get(var18);
-				if (this.pos < var7.p2)
+				if (this.pos < var7.virtualSize)
 				{
 					break;
 				}
@@ -82,12 +82,12 @@ class FindModule extends Thread
 						{
 							byte var17 = (var7.o.stack.get(0)).byteValue();
 
-							while (this.pos < var7.p2 && this.next())
+							while (this.pos < var7.virtualSize && this.next())
 							{
 								this.findB(var17);
-								if (this.pile.size() == 0 && this.pos < var7.p2 - (long) this.inCharsLength)
+								if (this.pile.size() == 0 && this.pos < var7.virtualSize - (long) this.inCharsLength)
 								{
-									this.pos = var7.p2 - (long) this.inCharsLength;
+									this.pos = var7.virtualSize - (long) this.inCharsLength;
 								}
 							}
 						} else
@@ -98,9 +98,9 @@ class FindModule extends Thread
 								;
 							}
 
-							while (this.pos < var7.p2 && this.next())
+							while (this.pos < var7.virtualSize && this.next())
 							{
-								var10 = var7.p2 - this.pos;
+								var10 = var7.virtualSize - this.pos;
 								var2 = var5.read(var6, 0, var10 < 2097152L ? (int) var10 : 2097152);
 								if (var2 <= 0)
 								{
@@ -119,7 +119,7 @@ class FindModule extends Thread
 						}
 					} else
 					{
-						while (this.pos < var7.p2 && this.next())
+						while (this.pos < var7.virtualSize && this.next())
 						{
 							this.findB((var7.o.stack.get((int) (this.pos - var8))).byteValue());
 						}
