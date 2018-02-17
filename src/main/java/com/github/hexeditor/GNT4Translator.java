@@ -138,6 +138,8 @@ public class GNT4Translator
 			byte[] translatedBytes = getTranslatedText(sjisText, i + 1, textPointers.size());
 			BinUtil.modifyEditor(editor, translatedBytes, pointer);
 		}
+		
+		editor.goTo(Integer.toString(textPointers.get(0)));
 	}
 	
 	/**
