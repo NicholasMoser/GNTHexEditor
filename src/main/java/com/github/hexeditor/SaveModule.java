@@ -120,9 +120,9 @@ class SaveModule extends Thread
 					fileInputStream.close();
 				}
 
-				if (this.hexV.rAF != null)
+				if (this.hexV.currentFile != null)
 				{
-					this.hexV.rAF.close();
+					this.hexV.currentFile.close();
 				}
 
 				if (this.f1 != null && this.f1.equals(this.f2))

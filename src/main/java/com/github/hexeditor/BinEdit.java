@@ -80,7 +80,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 	JTextField InsDelTF = new JTextField();
 	Timer timer = new Timer(500, this);
 	Clipboard clipboard;
-	RandomAccessFile rAF;
+	RandomAccessFile currentFile;
 	Stack undoStack = new Stack();
 	Vector srcV = new Vector();
 	Vector markV = new Vector();
@@ -150,11 +150,11 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 	public void closeFile()
 	{
-		if (this.rAF != null)
+		if (this.currentFile != null)
 		{
 			try
 			{
-				this.rAF.close();
+				this.currentFile.close();
 			} catch (Exception var2)
 			{
 				System.err.println("Ctrl+OQ " + var2);
@@ -174,7 +174,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 		try
 		{
-			this.rAF = new RandomAccessFile(this.loadedFile, this.loadedFile.canWrite() ? "rw" : "r");
+			this.currentFile = new RandomAccessFile(this.loadedFile, this.loadedFile.canWrite() ? "rw" : "r");
 			this.jSbSource = false;
 			this.jSB.setValue(0);
 			this.undoStack.push(new EditState(0L, this.loadedFile.length(), 0));
@@ -1122,7 +1122,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		case KeyEvent.VK_Q:
 			if (!var4 && !this.isApplet)
 			{
-				if (this.rAF == null && !this.undoStack.empty() || this.rAF != null && 1 < this.undoStack.size())
+				if (this.currentFile == null && !this.undoStack.empty() || this.currentFile != null && 1 < this.undoStack.size())
 				{
 					var5 = JOptionPane.showConfirmDialog(this, "Save the current modified file?");
 					if (var5 == 2)
@@ -1744,13 +1744,13 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 					{
 						var5[1] = (byte) (var19.p1 != var19.offset ? 1 : var19.o.a1);
 						byte[] var6 = new byte[(int) (var13 - var17)];
-						this.rAF.seek(var17 - var11);
+						this.currentFile.seek(var17 - var11);
 						int var9 = 0;
 
 						int var7;
 						while (var9 < var6.length)
 						{
-							var7 = this.rAF.read(var6, var9, var6.length - var9);
+							var7 = this.currentFile.read(var6, var9, var6.length - var9);
 							if (var7 < 0)
 							{
 								throw new IOException("EOF");
@@ -1856,7 +1856,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 			try
 			{
-				this.rAF = new RandomAccessFile(this.loadedFile, "rw");
+				this.currentFile = new RandomAccessFile(this.loadedFile, "rw");
 			} catch (Exception var3)
 			{
 				System.err.println(var3);
@@ -1918,5 +1918,18 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		this.firstPos = var1;
 		this.isNibLow = false;
 		this.slideScr(0L, true);
+	}
+	
+	/**
+	 * Gets the byte from the list of bytes at a specific location.
+	 * Each byte includes a color; this color value is not included in the return value.
+	 * 
+	 * @param offset the location of the byte to retrieve from the current file
+	 * @return the byte at the specified location
+	 */
+	public byte getByte(int offset)
+	{
+		byte[] byteColorCombo = (byte[]) srcV.get(offset);
+		return byteColorCombo[0];
 	}
 }
