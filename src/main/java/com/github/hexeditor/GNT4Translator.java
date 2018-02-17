@@ -114,7 +114,15 @@ public class GNT4Translator
 	{
 		// Get pointer info from the user
 		int pointerTableStart = getPointerTableStart();
+		if (pointerTableStart == -1)
+		{
+			return;
+		}
 		int pointerTableEnd = getPointerTableEnd();
+		if (pointerTableEnd == -1)
+		{
+			return;
+		}
 //		boolean appendText = appendText();
 //		int newTextLocationOffset = -1;
 //		if (appendText)
@@ -136,6 +144,11 @@ public class GNT4Translator
 			int pointer = textPointers.get(i);
 			String sjisText = readShiftJisText(fileBytes, pointer);
 			byte[] translatedBytes = getTranslatedText(sjisText, i + 1, textPointers.size());
+			if (translatedBytes == null)
+			{
+				editor.goTo(Integer.toString(textPointers.get(0)));
+				return;
+			}
 			BinUtil.modifyEditor(editor, translatedBytes, pointer);
 		}
 		
@@ -217,34 +230,6 @@ public class GNT4Translator
 	}
 
 	/**
-	 * Asks the user for the pointer table start. Only decimal (base-10) values are allowed).
-	 * @return the pointer table start value
-	 */
-	private int getPointerTableStart()
-	{
-		boolean validValue = false;
-		int value = 0;
-		while(!validValue)
-		{
-			String pointerTableStartMsg = "Please enter the start of the pointer table (inclusive).\n";
-			pointerTableStartMsg += "Note: Input it as a decimal (base-10) value.\n";
-			pointerTableStartMsg += "Example: 258";
-			String pointerTableStartTitle = "Pointer Table Start";
-			String inputValue = JOptionPane.showInputDialog(editor, pointerTableStartMsg, pointerTableStartTitle, JOptionPane.PLAIN_MESSAGE);
-			try
-			{
-				value = Integer.valueOf(inputValue);
-				validValue = true;
-			}
-			catch (NumberFormatException e)
-			{
-				JOptionPane.showMessageDialog(editor, "Please enter a valid decimal (base-10) value.");
-			}
-		}
-		return value;
-	}
-
-	/**
 	 * Asks the user for the text to translate the shift-jis text with.
 	 * Returns the shift-jis bytes for the translated string.
 	 * 
@@ -264,6 +249,10 @@ public class GNT4Translator
 			message += "You are at pointer " + currentPointer + " of " + numPointers;
 			String title = "Replace Shift-Jis Text";
 			String inputValue = (String) JOptionPane.showInputDialog(editor, message, title, JOptionPane.PLAIN_MESSAGE, null, null, sjisText);
+			if (inputValue == null)
+			{
+				return null;
+			}
 			inputValue = inputValue.replaceAll("[LINE]", "~").replaceAll("[END]", "");
 			
 			if (inputValue.length() == sjisText.length())
@@ -287,6 +276,38 @@ public class GNT4Translator
 	}
 
 	/**
+	 * Asks the user for the pointer table start. Only decimal (base-10) values are allowed).
+	 * @return the pointer table start value
+	 */
+	private int getPointerTableStart()
+	{
+		boolean validValue = false;
+		int value = 0;
+		while(!validValue)
+		{
+			String pointerTableStartMsg = "Please enter the start of the pointer table (inclusive).\n";
+			pointerTableStartMsg += "Note: Input it as a decimal (base-10) value.\n";
+			pointerTableStartMsg += "Example: 258";
+			String pointerTableStartTitle = "Pointer Table Start";
+			String inputValue = JOptionPane.showInputDialog(editor, pointerTableStartMsg, pointerTableStartTitle, JOptionPane.PLAIN_MESSAGE);
+			if (inputValue == null)
+			{
+				return -1;
+			}
+			try
+			{
+				value = Integer.valueOf(inputValue);
+				validValue = true;
+			}
+			catch (NumberFormatException e)
+			{
+				JOptionPane.showMessageDialog(editor, "Please enter a valid decimal (base-10) value.");
+			}
+		}
+		return value;
+	}
+
+	/**
 	 * Asks the user for the pointer table end. Only decimal (base-10) values are allowed).
 	 * @return the pointer table end value
 	 */
@@ -301,6 +322,10 @@ public class GNT4Translator
 			message += "Example: 258";
 			String title = "Pointer Table End";
 			String inputValue = JOptionPane.showInputDialog(editor, message, title, JOptionPane.PLAIN_MESSAGE);
+			if (inputValue == null)
+			{
+				return -1;
+			}
 			try
 			{
 				value = Integer.valueOf(inputValue);
