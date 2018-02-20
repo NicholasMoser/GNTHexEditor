@@ -115,7 +115,7 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 				{ KeyEvent.VK_E, KeyEvent.VK_A, KeyEvent.VK_Z, KeyEvent.VK_Y, KeyEvent.VK_X, KeyEvent.VK_C,
 						KeyEvent.VK_V, KeyEvent.VK_F, KeyEvent.VK_INSERT, KeyEvent.VK_DELETE },
 				{ KeyEvent.VK_V, KeyEvent.VK_G, KeyEvent.VK_M, KeyEvent.VK_D, KeyEvent.VK_U, KeyEvent.VK_T,
-						KeyEvent.VK_H, KeyEvent.VK_L, KeyEvent.VK_W },
+						KeyEvent.VK_ADD, KeyEvent.VK_SUBTRACT, KeyEvent.VK_W },
 				{ KeyEvent.VK_K, KeyEvent.VK_K },
 				{ KeyEvent.VK_H, KeyEvent.VK_PLUS, KeyEvent.VK_MINUS },
 				{ KeyEvent.VK_H, KeyEvent.VK_H } };
