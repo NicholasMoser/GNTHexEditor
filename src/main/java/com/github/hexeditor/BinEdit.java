@@ -352,7 +352,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		char[] hexValues = new char[]
 		{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 		Color[] colors = new Color[]
-		{ Color.WHITE, Color.BLACK, new Color(50, 50, 50, 40), new Color(50, 50, 50, 80), Color.GREEN, Color.RED,
+		{ new Color(188, 188, 188), Color.BLACK, new Color(50, 50, 50, 40), new Color(50, 50, 50, 80), Color.GREEN, Color.RED,
 				Color.BLUE, Color.YELLOW, Color.MAGENTA, Color.CYAN, Color.GREEN.darker(), new Color(0, 0, 0, 0) };
 		byte[] var5 = new byte[2];
 		int[] var10 = new int[2];

@@ -1,7 +1,5 @@
 package com.github.hexeditor;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -233,7 +231,7 @@ public class GNT4Translator
 	}
 
 	/**
-	 * Asks the user for the pointer table start. Only decimal (base-10) values are allowed).
+	 * Asks the user for the pointer table start. Both decimal and hexadecimal are allowed.
 	 * @return the pointer table start value
 	 */
 	private int getPointerTableStart()
@@ -273,7 +271,7 @@ public class GNT4Translator
 	}
 
 	/**
-	 * Asks the user for the pointer table end. Only decimal (base-10) values are allowed).
+	 * Asks the user for the pointer table end. Both decimal and hexadecimal are allowed.
 	 * @return the pointer table end value
 	 */
 	private int getPointerTableEnd()
