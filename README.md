@@ -1,8 +1,8 @@
-hexeditor
+GNT Hex Editor
 =========
 
-This is a fork of the binary file editor named Hex Editor.
-This fork is designed to be used as a modding tool for Naruto GNT4 files.
+This project builds upon [Valentyn Kolesnikov's Hex Editor](https://github.com/javadev/hexeditor).
+It is designed to be used as a modding tool for Naruto GNT files, particularly GNT4.
 It is modular enough to be modified to add new tools as they are needed.
 To run the Hex Editor you will need to first [download Java](https://java.com/en/download/). Then download the [hexeditor.jar](https://github.com/NicholasMoser/hexeditor/raw/master/hexeditor.jar) file and run it.
 
