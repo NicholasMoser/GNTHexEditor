@@ -245,7 +245,7 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 				{ "BE", "LE" },
 				{ "Signed", "Unsigned" },
 				{ "Short (16)", "Int (32)", "Long (64)", "Float (32)", "Double (64)", "Hexa", "ISO/CEI 8859-1", "UTF-8",
-						"UTF-16" },
+						"UTF-16", "Shift-JIS" },
 				{ "8 bits", "16 bits", "32 bits", "64 bits", "128 bits" },
 				{ "<html>Big-indian (natural order) or<br>Little-indian (Intel order).", "Only for integer",
 						"Data type",
@@ -311,12 +311,12 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 
 	private JPanel status()
 	{
-		String[][] var1 = new String[][]
+		String[][] encodings = new String[][]
 		{
 				{ "BE", "LE " },
 				{ "Binary", "Byte, signed/unsigned    ", "Short (16), signed", "Short (16), unsigned",
 						"Int (32), signed", "Int (32), unsigned", "Long (64), signed", "Long (64), unsigned",
-						"Float (32)", "Double (64)", "DOS-US/OEM-US/cp437", "UTF-8", "UTF-16" },
+						"Float (32)", "Double (64)", "DOS-US/OEM-US/cp437", "UTF-8", "UTF-16", "Shift-JIS" },
 				{ "<html>Big-Endian (natural order) or little-Endian (Intel order).",
 						"<html>Conversion rule for the data following the caret (shown here after)." } };
 
@@ -324,51 +324,52 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 		{
 			if (!(this.cp437Available = Charset.isSupported("cp437")))
 			{
-				var1[1][10] = "ISO/CEI 8859-1";
+				encodings[1][10] = "ISO/CEI 8859-1";
 			}
 		} catch (Exception var6)
 		{
 			;
 		}
 
-		JPanel var4 = new JPanel(new GridBagLayout());
-		var4.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
-		GridBagConstraints var5 = new GridBagConstraints();
-		var5.fill = 1;
-		var5.insets = new Insets(0, 0, 0, 0);
+		JPanel grid = new JPanel(new GridBagLayout());
+		grid.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.fill = 1;
+		constraints.insets = new Insets(0, 0, 0, 0);
 
-		for (int var2 = 0; var2 < this.viewCBox.length; ++var2)
+		for (int i = 0; i < this.viewCBox.length; ++i)
 		{
-			this.viewCBox[var2] = new JComboBox();
-			this.viewCBox[var2].setPrototypeDisplayValue(var1[var2][1]);
-			this.viewCBox[var2].setToolTipText(var1[2][var2]);
+			this.viewCBox[i] = new JComboBox();
+			this.viewCBox[i].setPrototypeDisplayValue(encodings[i][1]);
+			this.viewCBox[i].setToolTipText(encodings[2][i]);
 
-			for (int var3 = 0; var3 < var1[var2].length; ++var3)
+			for (int j = 0; j < encodings[i].length; ++j)
 			{
-				this.viewCBox[var2].addItem(var1[var2][var3]);
+				this.viewCBox[i].addItem(encodings[i][j]);
 			}
 
-			++var5.gridx;
-			var4.add(this.viewCBox[var2], var5);
+			++constraints.gridx;
+			grid.add(this.viewCBox[i], constraints);
 		}
 
-		this.viewCBox[1].setSelectedIndex(1);
-		var5.weightx = 1.0D;
-		++var5.gridx;
+		// Default to shift-jis
+		this.viewCBox[1].setSelectedIndex(13);
+		constraints.weightx = 1.0D;
+		++constraints.gridx;
 		this.JTView.setPreferredSize(
 				new Dimension(this.JTView.getPreferredSize().width, this.viewCBox[0].getMinimumSize().height));
-		var4.add(this.JTView, var5);
-		var5.weightx = 0.0D;
-		++var5.gridx;
-		var4.add(Box.createHorizontalStrut(3), var5);
-		++var5.gridx;
-		var4.add(this.JTsizes, var5);
-		++var5.gridx;
-		var4.add(Box.createHorizontalStrut(3), var5);
+		grid.add(this.JTView, constraints);
+		constraints.weightx = 0.0D;
+		++constraints.gridx;
+		grid.add(Box.createHorizontalStrut(3), constraints);
+		++constraints.gridx;
+		grid.add(this.JTsizes, constraints);
+		++constraints.gridx;
+		grid.add(Box.createHorizontalStrut(3), constraints);
 		this.viewCBox[0].addItemListener(this);
 		this.viewCBox[1].addItemListener(this);
 		this.JTsizes.addMouseListener(this);
-		return var4;
+		return grid;
 	}
 
 	public void actionPerformed(ActionEvent var1)

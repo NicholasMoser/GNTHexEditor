@@ -142,7 +142,7 @@ public class GNT4Translator
 		for (int i = 0; i < textPointers.size(); i++)
 		{
 			int pointer = textPointers.get(i);
-			String sjisText = readShiftJisText(fileBytes, pointer);
+			String sjisText = BinUtil.readShiftJisText(fileBytes, pointer);
 			byte[] translatedBytes = getTranslatedText(sjisText, i + 1, textPointers.size());
 			if (translatedBytes == null)
 			{
@@ -153,49 +153,6 @@ public class GNT4Translator
 		}
 		
 		editor.goTo(Integer.toString(textPointers.get(0)));
-	}
-	
-	/**
-	 * Reads shift-jis text starting from a byte array starting at offset.
-	 * Stops when it encounters the hex values 00 0A (terminators).
-	 * The first two 00 bytes are ignored. The second two are swapped (big to little endian).
-	 * Newlines are replaced with downward arrows.
-	 * 
-	 * @param bytes the byte array to get the shift-jis text from
-	 * @param offset the offset to start grabbing shift-jis text from
-	 * @return shift-jis text
-	 */
-	private String readShiftJisText(byte[] bytes, int offset)
-	{
-		boolean endText = false;
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		int position = offset;
-		while(!endText)
-		{
-			// Reverse order to change big to little endian
-			byte byte1 = bytes[position + 3];
-			byte byte2 = bytes[position + 2];
-			if (byte1 == 0x1A && byte2 == 0x00)
-			{
-				endText = true;
-			}
-			else
-			{
-				// Newlines are two characters in Windows, let's just replace them completely
-				if (byte1 == 0x0A && byte2 == 0x00)
-				{
-					byte1 = (byte) 129;
-					byte2 = (byte) 171;
-				}
-				out.write(byte1);
-				out.write(byte2);
-				position += 4;
-			}
-		}
-		byte[] textBytes = out.toByteArray();
-		
-		Charset cs = Charset.forName("SJIS");
-		return new String(textBytes, cs);
 	}
 	
 	/**

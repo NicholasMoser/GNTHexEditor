@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.Vector;
@@ -346,7 +347,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		this.paintImg(var1, true);
 	}
 
-	protected void paintImg(Graphics var1, boolean var2)
+	protected void paintImg(Graphics gfx, boolean var2)
 	{
 		char[] hexValues = new char[]
 		{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
@@ -365,18 +366,18 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			this.setSrc();
 		}
 
-		var1.setColor(colors[this.isOled ? 1 : 0]);
-		var1.fillRect(0, 0, this.getWidth(), this.getHeight());
-		var1.setFont(this.font);
-		var1.setColor(colors[this.isOled ? 7 : 6]);
+		gfx.setColor(colors[this.isOled ? 1 : 0]);
+		gfx.fillRect(0, 0, this.getWidth(), this.getHeight());
+		gfx.setFont(this.font);
+		gfx.setColor(colors[this.isOled ? 7 : 6]);
 		this.hLimit = 0;
 
-		char var6;
 		int var8;
-		int var9;
-		for (var9 = 0; var9 < this.maxRow; ++var9)
+		int row;
+		// Draws the Offset numbers on the left hand side of the screen
+		for (row = 0; row < this.maxRow; ++row)
 		{
-			var12 = this.scrPos + (long) (var9 << 4);
+			var12 = this.scrPos + (long) (row << 4);
 			if ((this.virtualSize | 15L) < var12 || var12 < 0L)
 			{
 				break;
@@ -384,21 +385,21 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 			for (var8 = 0; var8 < this.xPos.length; ++var8)
 			{
-				var6 = hexValues[(int) (var12 & 15L)];
-				var1.drawString("" + var6, this.cShift[var6] + this.wChar * this.xPos[var8],
-						this.hLimit = this.hMargin + this.hChar * var9);
+				char hex = hexValues[(int) (var12 & 15L)];
+				gfx.drawString("" + hex, this.cShift[hex] + this.wChar * this.xPos[var8],
+						this.hLimit = this.hMargin + this.hChar * row);
 				var12 >>= 4;
 			}
 		}
 
 		if (var12 < 0L)
 		{
-			var1.setColor(colors[5]);
-			var1.drawString("-- Limit = 0x7FFFFFFFFFFFFFFE = Long.MAX_VALUE-1 = 2^63-2 = 9223372036854775806 --", 0,
-					this.hMargin + this.hChar * var9 - 3);
+			gfx.setColor(colors[5]);
+			gfx.drawString("-- Limit = 0x7FFFFFFFFFFFFFFE = Long.MAX_VALUE-1 = 2^63-2 = 9223372036854775806 --", 0,
+					this.hMargin + this.hChar * row - 3);
 		}
 
-		var1.setColor(colors[9]);
+		gfx.setColor(colors[9]);
 		boolean var16 = this.firstPos < this.lastPos;
 		var10 = this.pos2XY(var16 ? this.firstPos : this.lastPos);
 		var11 = this.pos2XY(!var16 ? this.firstPos : this.lastPos);
@@ -406,71 +407,105 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		{
 			if (var10[1] == var11[1])
 			{
-				var1.fillRect(this.wChar * this.xNib[var10[0] * 2] - 2, this.hChar * var10[1] + 3,
+				gfx.fillRect(this.wChar * this.xNib[var10[0] * 2] - 2, this.hChar * var10[1] + 3,
 						this.wChar * (this.xNib[var11[0] * 2] - this.xNib[var10[0] * 2]), this.hChar - 4);
-				var1.fillRect(this.wChar * this.xTxt[var10[0]], this.hChar * var10[1] + 3,
+				gfx.fillRect(this.wChar * this.xTxt[var10[0]], this.hChar * var10[1] + 3,
 						this.wChar * (this.xTxt[var11[0]] - this.xTxt[var10[0]]), this.hChar - 4);
 			} else if (var10[1] + 1 == var11[1] && var11[0] == 0)
 			{
-				var1.fillRect(this.wChar * this.xNib[var10[0] * 2] - 2, this.hChar * var10[1] + 3,
+				gfx.fillRect(this.wChar * this.xNib[var10[0] * 2] - 2, this.hChar * var10[1] + 3,
 						this.wChar * (this.xNib[31] + 2 - this.xNib[var10[0] * 2]), this.hChar - 4);
-				var1.fillRect(this.wChar * this.xTxt[var10[0]], this.hChar * var10[1] + 3,
+				gfx.fillRect(this.wChar * this.xTxt[var10[0]], this.hChar * var10[1] + 3,
 						this.wChar * (this.xTxt[15] + 2 - this.xTxt[var10[0]]), this.hChar - 4);
 			} else
 			{
-				var1.fillRect(this.wChar * this.xNib[var10[0] * 2] - 2, this.hChar * var10[1] + 3,
+				gfx.fillRect(this.wChar * this.xNib[var10[0] * 2] - 2, this.hChar * var10[1] + 3,
 						this.wChar * (this.xNib[31] + 2 - this.xNib[var10[0] * 2]) + 4, this.hChar - 4);
-				var1.fillRect(this.wChar * this.xNib[0] - 2, this.hChar * (var10[1] + 1) - 1,
+				gfx.fillRect(this.wChar * this.xNib[0] - 2, this.hChar * (var10[1] + 1) - 1,
 						this.wChar * (this.xNib[31] + 2 - this.xNib[0]) + 4,
 						this.hChar * (var11[1] - var10[1] - 1) + 4);
 				if (this.xNib[var11[0] * 2] != this.xNib[0])
 				{
-					var1.fillRect(this.wChar * this.xNib[0] - 2, this.hChar * var11[1] + 3,
+					gfx.fillRect(this.wChar * this.xNib[0] - 2, this.hChar * var11[1] + 3,
 							this.wChar * (this.xNib[var11[0] * 2] - this.xNib[0]), this.hChar - 4);
 				}
 
-				var1.fillRect(this.wChar * this.xTxt[var10[0]], this.hChar * var10[1] + 3,
+				gfx.fillRect(this.wChar * this.xTxt[var10[0]], this.hChar * var10[1] + 3,
 						this.wChar * (this.xTxt[15] + 2 - this.xTxt[var10[0]]), this.hChar - 4);
-				var1.fillRect(this.wChar * this.xTxt[0], this.hChar * (var10[1] + 1) - 1,
+				gfx.fillRect(this.wChar * this.xTxt[0], this.hChar * (var10[1] + 1) - 1,
 						this.wChar * (this.xTxt[15] + 2 - this.xTxt[0]), this.hChar * (var11[1] - var10[1] - 1) + 4);
-				var1.fillRect(this.wChar * this.xTxt[0], this.hChar * var11[1] + 3,
+				gfx.fillRect(this.wChar * this.xTxt[0], this.hChar * var11[1] + 3,
 						this.wChar * (this.xTxt[var11[0]] - this.xTxt[0]), this.hChar - 4);
 			}
 		}
 
 		if (this.isOled)
 		{
-			var1.setXORMode(Color.BLACK);
+			gfx.setXORMode(Color.BLACK);
 		}
 
+		// This logic is to handle showing shift-jis on the right-hand side of the screen instead of ASCII
+		Charset cs = null;
+		boolean useShiftJis = false;
+		boolean secondShiftJisByte = false;
+		byte[] shiftJisBytes = new byte[2];
+		if (this.topPanel.viewCBox[1].getSelectedIndex() == 13)
+		{
+			useShiftJis = true;
+			cs = Charset.forName("shift-jis");
+		}
+		
+		// Draws the hex numbers left to right then top to bottom with their associated representation on the editor screen
 		for (int var7 = 0; var7 < this.srcV.size() && var7 < this.maxRow << 4; ++var7)
 		{
+			char hex;
 			var8 = var7 % 16;
-			var9 = var7 >> 4;
+			row = var7 >> 4;
 			var5 = (byte[]) ((byte[]) ((byte[]) this.srcV.get(var7)));
-			var1.setColor(colors[var5[1] != 1 ? 11 : (this.isOled ? 2 : 2)]);
-			var1.fillRect(this.wChar * this.xNib[var8 * 2] - 2, this.hChar * var9 + 3, this.wChar * 5, this.hChar - 4);
-			var1.fillRect(this.wChar * this.xTxt[var8], this.hChar * var9 + 3, this.wChar * 2, this.hChar - 4);
-			var1.setColor(colors[2 < var5[1] ? (this.isOled ? 0 : 5) : (this.isOled ? 4 : 1)]);
-			var6 = hexValues[(255 & var5[0]) >> 4];
-			var1.drawString("" + var6, this.cShift[var6] + this.wChar * this.xNib[var8 * 2],
-					this.hMargin + this.hChar * var9);
-			var6 = hexValues[(255 & var5[0]) % 16];
-			var1.drawString("" + var6, this.cShift[var6] + this.wChar * this.xNib[var8 * 2 + 1],
-					this.hMargin + this.hChar * var9);
-			var6 = (char) (255 & var5[0]);
-			if (Character.isISOControl(var6))
+			gfx.setColor(colors[var5[1] != 1 ? 11 : (this.isOled ? 2 : 2)]);
+			gfx.fillRect(this.wChar * this.xNib[var8 * 2] - 2, this.hChar * row + 3, this.wChar * 5, this.hChar - 4);
+			gfx.fillRect(this.wChar * this.xTxt[var8], this.hChar * row + 3, this.wChar * 2, this.hChar - 4);
+			gfx.setColor(colors[2 < var5[1] ? (this.isOled ? 0 : 5) : (this.isOled ? 4 : 1)]);
+			// First hex value
+			hex = hexValues[(255 & var5[0]) >> 4];
+			gfx.drawString("" + hex, this.cShift[hex] + this.wChar * this.xNib[var8 * 2],
+					this.hMargin + this.hChar * row);
+			// Second hex value
+			hex = hexValues[(255 & var5[0]) % 16];
+			gfx.drawString("" + hex, this.cShift[hex] + this.wChar * this.xNib[var8 * 2 + 1],
+					this.hMargin + this.hChar * row);
+			// Byte representation
+			if (useShiftJis)
 			{
-				var1.drawString("∙", this.wChar * this.xTxt[var8], this.hMargin + this.hChar * var9);
-			} else
+				if (secondShiftJisByte)
+				{
+					shiftJisBytes[0] = var5[0];
+					String shiftJisCharacter = new String(shiftJisBytes, cs);
+					gfx.drawString(shiftJisCharacter, this.wChar * this.xTxt[var8], this.hMargin + this.hChar * row);
+					secondShiftJisByte = false;
+				}
+				else
+				{
+					shiftJisBytes[1] = var5[0];
+					secondShiftJisByte = true;
+				}
+			}
+			else
 			{
-				var1.drawString("" + var6, this.cShift[var6] + this.wChar * this.xTxt[var8],
-						this.hMargin + this.hChar * var9);
+				hex = (char) (255 & var5[0]);
+				if (Character.isISOControl(hex))
+				{
+					gfx.drawString("∙", this.wChar * this.xTxt[var8], this.hMargin + this.hChar * row);
+				} else
+				{
+					gfx.drawString("" + hex, this.cShift[hex] + this.wChar * this.xTxt[var8],
+							this.hMargin + this.hChar * row);
+				}
 			}
 		}
 
-		var1.setPaintMode();
-		var1.setColor(colors[10]);
+		gfx.setPaintMode();
+		gfx.setColor(colors[10]);
 		long var14;
 		Iterator var17;
 		if (this.markV != null && 0 < this.markV.size())
@@ -486,16 +521,16 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				} else if (this.scrPos <= var14 && var14 - (long) this.maxPos <= this.scrPos)
 				{
 					var10 = this.pos2XY(var14);
-					var1.fillRect(this.wChar * (this.xNib[0] - 1), this.hChar * (var10[1] + 1) - 2,
+					gfx.fillRect(this.wChar * (this.xNib[0] - 1), this.hChar * (var10[1] + 1) - 2,
 							this.wChar * (this.xNib[var10[0] << 1] - this.xNib[0] + 1) - 2, 1);
-					var1.fillRect(this.wChar * this.xNib[var10[0] << 1] - 2, this.hChar * var10[1] + 3, 1,
+					gfx.fillRect(this.wChar * this.xNib[var10[0] << 1] - 2, this.hChar * var10[1] + 3, 1,
 							this.hChar - 4);
-					var1.fillRect(this.wChar * this.xNib[var10[0] << 1] - 2, this.hChar * var10[1] + 3,
+					gfx.fillRect(this.wChar * this.xNib[var10[0] << 1] - 2, this.hChar * var10[1] + 3,
 							this.wChar * (this.xNib[31] - this.xNib[var10[0] << 1] + 3), 1);
-					var1.fillRect(this.wChar * (this.xTxt[0] - 1), this.hChar * (var10[1] + 1) - 2,
+					gfx.fillRect(this.wChar * (this.xTxt[0] - 1), this.hChar * (var10[1] + 1) - 2,
 							this.wChar * (this.xTxt[var10[0]] - this.xTxt[0] + 1), 1);
-					var1.fillRect(this.wChar * this.xTxt[var10[0]] - 1, this.hChar * var10[1] + 3, 1, this.hChar - 4);
-					var1.fillRect(this.wChar * this.xTxt[var10[0]], this.hChar * var10[1] + 3,
+					gfx.fillRect(this.wChar * this.xTxt[var10[0]] - 1, this.hChar * var10[1] + 3, 1, this.hChar - 4);
+					gfx.fillRect(this.wChar * this.xTxt[var10[0]], this.hChar * var10[1] + 3,
 							this.wChar * (this.xTxt[15] - this.xTxt[var10[0]] + 3), 1);
 				}
 			}
@@ -514,16 +549,16 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				} else if (this.scrPos <= var14 && var14 - (long) this.maxPos <= this.scrPos)
 				{
 					var10 = this.pos2XY(var14);
-					var1.fillRect(this.wChar * (this.xNib[0] - 1), this.hChar * (var10[1] + 1) - 2,
+					gfx.fillRect(this.wChar * (this.xNib[0] - 1), this.hChar * (var10[1] + 1) - 2,
 							this.wChar * (this.xNib[var10[0] << 1] - this.xNib[0] + 1), 2);
-					var1.fillRect(this.wChar * this.xNib[var10[0] << 1] - 2, this.hChar * var10[1] + 3, 2,
+					gfx.fillRect(this.wChar * this.xNib[var10[0] << 1] - 2, this.hChar * var10[1] + 3, 2,
 							this.hChar - 3);
-					var1.fillRect(this.wChar * this.xNib[var10[0] << 1] - 2, this.hChar * var10[1] + 3,
+					gfx.fillRect(this.wChar * this.xNib[var10[0] << 1] - 2, this.hChar * var10[1] + 3,
 							this.wChar * (this.xNib[31] - this.xNib[var10[0] << 1] + 3), 2);
-					var1.fillRect(this.wChar * (this.xTxt[0] - 1), this.hChar * (var10[1] + 1) - 2,
+					gfx.fillRect(this.wChar * (this.xTxt[0] - 1), this.hChar * (var10[1] + 1) - 2,
 							this.wChar * (this.xTxt[var10[0]] - this.xTxt[0] + 1), 2);
-					var1.fillRect(this.wChar * this.xTxt[var10[0]] - 1, this.hChar * var10[1] + 3, 2, this.hChar - 3);
-					var1.fillRect(this.wChar * this.xTxt[var10[0]], this.hChar * var10[1] + 3,
+					gfx.fillRect(this.wChar * this.xTxt[var10[0]] - 1, this.hChar * var10[1] + 3, 2, this.hChar - 3);
+					gfx.fillRect(this.wChar * this.xTxt[var10[0]], this.hChar * var10[1] + 3,
 							this.wChar * (this.xTxt[15] - this.xTxt[var10[0]] + 3), 2);
 				}
 			}
@@ -531,16 +566,16 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 		if (this.scrPos <= this.lastPos && this.lastPos - (long) this.maxPos <= this.scrPos)
 		{
-			var1.setColor(colors[8]);
+			gfx.setColor(colors[8]);
 			var11 = this.pos2XY(this.lastPos);
 			if (this.caretVisible < 2 || !var2)
 			{
-				var1.fillRect(this.wChar
+				gfx.fillRect(this.wChar
 						* (this.nibArea ? this.xNib[(var11[0] << 1) + (this.isNibLow ? 1 : 0)] : this.xTxt[var11[0]])
 						- 1, this.hChar * var11[1] + 3, 2, this.hChar - 4);
 			}
 
-			var1.fillRect(this.wChar * (this.nibArea ? this.xTxt[var11[0]] : this.xNib[var11[0] << 1]),
+			gfx.fillRect(this.wChar * (this.nibArea ? this.xTxt[var11[0]] : this.xNib[var11[0] << 1]),
 					this.hChar * (var11[1] + 1) - 2, this.wChar << (this.nibArea ? 1 : 2), 2);
 		}
 
@@ -563,8 +598,8 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 	protected void setStatus()
 	{
-		int var3 = this.topPanel.viewCBox[1].getSelectedIndex();
-		String var7 = "";
+		int encodingSelection = this.topPanel.viewCBox[1].getSelectedIndex();
+		String displayText = "";
 		if (this.firstPos != this.lastPos)
 		{
 			if (this.lastPos - this.firstPos < 2147483647L && this.firstPos - this.lastPos < 2147483647L)
@@ -589,10 +624,10 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		{
 			if (this.lastPos <= this.virtualSize)
 			{
-				int var5 = var3 != 0 && var3 != 1
-						? (var3 != 2 && var3 != 3
-								? (var3 != 4 && var3 != 5 && var3 != 8
-										? (var3 != 6 && var3 != 7 && var3 != 9 ? (var3 != 10 && var3 != 11 ? 128 : 64)
+				int var5 = encodingSelection != 0 && encodingSelection != 1
+						? (encodingSelection != 2 && encodingSelection != 3
+								? (encodingSelection != 4 && encodingSelection != 5 && encodingSelection != 8
+										? (encodingSelection != 6 && encodingSelection != 7 && encodingSelection != 9 ? (encodingSelection != 10 && encodingSelection != 11 ? 128 : 64)
 												: 8)
 										: 4)
 								: 2)
@@ -604,80 +639,83 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 					return;
 				}
 
-				var4 = var5 < var4 ? var5 : (var3 != 12 ? var4 : var4 >> 1 << 1);
-				byte[] var1 = new byte[var4];
+				var4 = var5 < var4 ? var5 : (encodingSelection != 12 ? var4 : var4 >> 1 << 1);
+				byte[] textBytes = new byte[var4];
 
-				for (var4 = 0; var4 < var1.length; ++var4)
+				for (var4 = 0; var4 < textBytes.length; ++var4)
 				{
-					var1[var4] = ((byte[]) ((byte[]) this.srcV
+					textBytes[var4] = ((byte[]) ((byte[]) this.srcV
 							.get((int) (this.lastPos - this.scrPos + (long) var4))))[0];
 				}
 
-				var5 = var1[0];
+				var5 = textBytes[0];
 
 				try
 				{
-					if (var3 == 0)
+					if (encodingSelection == 0)
 					{
 						for (var4 = 0; var4 < 8; ++var4)
 						{
-							var7 = var7 + ((var5 & 128) == 128 ? '1' : '0');
+							displayText = displayText + ((var5 & 128) == 128 ? '1' : '0');
 							if (var4 == 3)
 							{
-								var7 = var7 + ' ';
+								displayText = displayText + ' ';
 							}
 
 							var5 <<= 1;
 						}
-					} else if (var3 == 1)
+					} else if (encodingSelection == 1)
 					{
-						var7 = Integer.toString(var5) + " / " + Integer.toString(var5 & 255);
-					} else if (var3 == 8)
+						displayText = Integer.toString(var5) + " / " + Integer.toString(var5 & 255);
+					} else if (encodingSelection == 8)
 					{
-						var7 = this.topPanel.fForm
-								.format((double) Float.intBitsToFloat((new BigInteger(var1)).intValue()));
-					} else if (var3 == 9)
+						displayText = this.topPanel.fForm
+								.format((double) Float.intBitsToFloat((new BigInteger(textBytes)).intValue()));
+					} else if (encodingSelection == 9)
 					{
-						var7 = this.topPanel.dForm.format(Double.longBitsToDouble((new BigInteger(var1)).longValue()));
-					} else if (var3 == 10)
+						displayText = this.topPanel.dForm.format(Double.longBitsToDouble((new BigInteger(textBytes)).longValue()));
+					} else if (encodingSelection == 10)
 					{
-						var7 = new String(var1, this.topPanel.cp437Available ? "cp437" : "ISO-8859-1");
-					} else if (var3 == 11)
+						displayText = new String(textBytes, this.topPanel.cp437Available ? "cp437" : "ISO-8859-1");
+					} else if (encodingSelection == 11)
 					{
-						var7 = new String(var1, "UTF-8");
-					} else if (var3 == 12)
+						displayText = new String(textBytes, "UTF-8");
+					} else if (encodingSelection == 12)
 					{
-						var7 = new String(var1,
+						displayText = new String(textBytes,
 								this.topPanel.viewCBox[0].getSelectedIndex() < 1 ? "UTF-16BE" : "UTF-16LE");
+					} else if (encodingSelection == 13)
+					{
+						displayText = BinUtil.readShiftJisText(textBytes, 0);
 					} else
 					{
-						byte[] var2 = new byte[var3 < 6 ? var3 : (var3 == 6 ? 8 : 9)];
+						byte[] var2 = new byte[encodingSelection < 6 ? encodingSelection : (encodingSelection == 6 ? 8 : 9)];
 						var2[0] = 0;
 						if (this.topPanel.viewCBox[0].getSelectedIndex() < 1)
 						{
 							if ((var2.length & 1) == 0)
 							{
-								System.arraycopy(var1, 0, var2, 0, var2.length);
+								System.arraycopy(textBytes, 0, var2, 0, var2.length);
 							} else
 							{
-								System.arraycopy(var1, 0, var2, 1, var2.length - 1);
+								System.arraycopy(textBytes, 0, var2, 1, var2.length - 1);
 							}
 						} else
 						{
 							for (var4 = var2.length & 1; var4 < var2.length; ++var4)
 							{
-								var2[var4] = var1[var2.length - var4 - 1];
+								var2[var4] = textBytes[var2.length - var4 - 1];
 							}
 						}
 
-						var7 = (new BigInteger(var2)).toString();
+						displayText = (new BigInteger(var2)).toString();
 					}
-				} catch (Exception var9)
+				} catch (Exception e)
 				{
-					System.err.println("setStatus " + var9);
+					System.err.println("setStatus " + e);
 				}
 
-				this.topPanel.JTView.setText(var7.replaceAll("\t", "  ").replaceAll("\n", "  "));
+				this.topPanel.JTView.setText(displayText.replaceAll("\t", "  ").replaceAll("\n", "  "));
 				this.topPanel.JTView.setCaretPosition(0);
 			}
 
@@ -1670,10 +1708,10 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 				}
 			}
 
-			long var12 = this.v1 != null && this.v1.size() != 0 ? ((EditState) this.v1.lastElement()).virtualSize : 0L;
-			if (this.virtualSize != var12)
+			long newSize = this.v1 != null && this.v1.size() != 0 ? ((EditState) this.v1.lastElement()).virtualSize : 0L;
+			if (this.virtualSize != newSize)
 			{
-				this.virtualSize = var12;
+				this.virtualSize = newSize;
 				this.setGrid(this.fontSize);
 			}
 

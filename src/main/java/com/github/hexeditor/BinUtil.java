@@ -1,8 +1,10 @@
 package com.github.hexeditor;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 class BinUtil
@@ -42,7 +44,6 @@ class BinUtil
 		ByteBuffer bb = ByteBuffer.wrap(bytes);
 		bb.order(ByteOrder.BIG_ENDIAN);
 		return bb.getInt();
-		
 	}
 
 	/**
@@ -78,6 +79,54 @@ class BinUtil
 			System.out.println("whoops");
 		}
 		return bytes;
+	}
+	
+	/**
+	 * Reads shift-jis text starting from a byte array starting at offset.
+	 * Stops when it encounters the hex values 00 0A (terminators).
+	 * The first two 00 bytes are ignored. The second two are swapped (big to little endian).
+	 * Newlines are replaced with downward arrows.
+	 * 
+	 * @param bytes the byte array to get the shift-jis text from
+	 * @param offset the offset to start grabbing shift-jis text from
+	 * @return shift-jis text
+	 */
+	public static String readShiftJisText(byte[] bytes, int offset)
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		if (bytes.length < 2)
+		{
+			return "Not enough bytes to parse, move cursor back.";
+		}
+		if (bytes[0] != 0x00 || bytes[1] != 0x00)
+		{
+			return "Move cursor to start of double zero byte.";
+		}
+		for (int i = offset; i < bytes.length; i += 4)
+		{
+			// Reverse order to change big to little endian
+			byte byte1 = bytes[i + 3];
+			byte byte2 = bytes[i + 2];
+			if (byte1 == 0x1A && byte2 == 0x00)
+			{
+				break;
+			}
+			else
+			{
+				// Newlines are two characters in Windows, let's just replace them completely
+				if (byte1 == 0x0A && byte2 == 0x00)
+				{
+					byte1 = (byte) 129;
+					byte2 = (byte) 171;
+				}
+				out.write(byte1);
+				out.write(byte2);
+			}
+		}
+		byte[] textBytes = out.toByteArray();
+		
+		Charset cs = Charset.forName("shift-jis");
+		return new String(textBytes, cs);
 	}
 	
 	/**
