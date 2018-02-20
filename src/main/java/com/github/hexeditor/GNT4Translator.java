@@ -242,18 +242,26 @@ public class GNT4Translator
 		int value = 0;
 		while(!validValue)
 		{
-			String pointerTableStartMsg = "Please enter the start of the pointer table (inclusive).\n";
-			pointerTableStartMsg += "Note: Input it as a decimal (base-10) value.\n";
-			pointerTableStartMsg += "Example: 258";
-			String pointerTableStartTitle = "Pointer Table Start";
-			String inputValue = JOptionPane.showInputDialog(editor, pointerTableStartMsg, pointerTableStartTitle, JOptionPane.PLAIN_MESSAGE);
+			String message = "Please enter the start of the pointer table (inclusive).\n";
+			message += "Note: By default assumes the number is in decimal (base-10).\n";
+			message += "Add 0x to the start of your number if you wish to instead use hexadecimal (base-16).\n";
+			message += "Example: 258 or 0x102";
+			String title = "Pointer Table Start";
+			String inputValue = JOptionPane.showInputDialog(editor, message, title, JOptionPane.PLAIN_MESSAGE);
 			if (inputValue == null)
 			{
 				return -1;
 			}
 			try
 			{
-				value = Integer.valueOf(inputValue);
+				if (inputValue.startsWith("0x") || inputValue.startsWith("Ox") || inputValue.startsWith("ox"))
+				{
+					value = Integer.valueOf(inputValue.substring(2), 16);
+				}
+				else
+				{
+					value = Integer.valueOf(inputValue);
+				}
 				validValue = true;
 			}
 			catch (NumberFormatException e)
@@ -275,8 +283,9 @@ public class GNT4Translator
 		while(!validValue)
 		{
 			String message = "Please enter the end of the pointer table (inclusive).\n";
-			message += "Note: Input it as a decimal (base-10) value.\n";
-			message += "Example: 258";
+			message += "Note: By default assumes the number is in decimal (base-10).\n";
+			message += "Add 0x to the start of your number if you wish to instead use hexadecimal (base-16).\n";
+			message += "Example: 258 or 0x102";
 			String title = "Pointer Table End";
 			String inputValue = JOptionPane.showInputDialog(editor, message, title, JOptionPane.PLAIN_MESSAGE);
 			if (inputValue == null)
@@ -285,12 +294,19 @@ public class GNT4Translator
 			}
 			try
 			{
-				value = Integer.valueOf(inputValue);
+				if (inputValue.startsWith("0x") || inputValue.startsWith("Ox") || inputValue.startsWith("ox"))
+				{
+					value = Integer.valueOf(inputValue.substring(2), 16);
+				}
+				else
+				{
+					value = Integer.valueOf(inputValue);
+				}
 				validValue = true;
 			}
 			catch (NumberFormatException e)
 			{
-				JOptionPane.showMessageDialog(editor, "Please enter a valid decimal (base-10) value.");
+				JOptionPane.showMessageDialog(editor, "Please enter a valid number.");
 			}
 		}
 		return value;
@@ -333,7 +349,7 @@ public class GNT4Translator
 			}
 			catch (NumberFormatException e)
 			{
-				JOptionPane.showMessageDialog(editor, "Please enter a valid decimal (base-10) value.");
+				JOptionPane.showMessageDialog(editor, "Please enter a valid number.");
 			}
 		}
 		return value;

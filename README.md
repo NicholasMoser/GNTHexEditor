@@ -17,11 +17,11 @@ This corresponds to the decimal values 207968 to 207983 (also inclusive). To tra
 
 [![Screen short](https://raw.github.com/NicholasMoser/hexeditor/master/hexeditor3.png)](https://github.com/NicholasMoser/hexeditor/)
 
-First it will ask for the starting point. Enter the starting decimal value, which in this example case is 207968. 
+First it will ask for the starting point. Enter the starting decimal or hexadecimal value. In this case I use the decimal value 207968. 
 
 [![Screen short](https://raw.github.com/NicholasMoser/hexeditor/master/hexeditor4.png)](https://github.com/NicholasMoser/hexeditor/)
 
-Now enter the ending pointer, which in this example case is 207983.
+Now enter the ending pointer, which in this example case I use 207983.
 
 [![Screen short](https://raw.github.com/NicholasMoser/hexeditor/master/hexeditor5.png)](https://github.com/NicholasMoser/hexeditor/)
 

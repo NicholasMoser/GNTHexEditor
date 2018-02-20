@@ -1440,49 +1440,49 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		return text;
 	}
 
-	protected void String2long(String var1)
+	protected void String2long(String inputText)
 	{
 		this.longInput = -1L;
 		int var5 = -1;
 		int var6 = 0;
 		int var2;
-		if ((var2 = var1.length()) != 0 && !var1.equals("-") && !var1.equals("+"))
+		if ((var2 = inputText.length()) != 0 && !inputText.equals("-") && !inputText.equals("+"))
 		{
 			BigDecimal var7 = null;
 			BigInteger var8 = null;
 			boolean var9 = false;
-			boolean var10 = var1.startsWith("0x") || var1.startsWith("Ox") || var1.startsWith("ox");
+			boolean isHex = inputText.startsWith("0x") || inputText.startsWith("Ox") || inputText.startsWith("ox");
 			String var11 = "yzafpnµm kMGTPEZY";
 			String var12 = "KMGTPE";
-			var1.replaceAll(" ", "");
-			if (1 < var1.length() && !var10)
+			inputText.replaceAll(" ", "");
+			if (1 < inputText.length() && !isHex)
 			{
-				if (var9 = 105 == var1.charAt(var1.length() - 1))
+				if (var9 = 105 == inputText.charAt(inputText.length() - 1))
 				{
-					var5 = var12.indexOf(var1.charAt(var1.length() - 2));
+					var5 = var12.indexOf(inputText.charAt(inputText.length() - 2));
 				} else
 				{
-					int var18 = var1.endsWith("c") ? -2
-							: (var1.endsWith("d") ? -1
-									: (var1.endsWith("da") ? 1
-											: (var1.endsWith("h") ? 2 : (var1.endsWith("%") ? -2 : 0))));
-					int var19 = var11.indexOf(var1.charAt(var1.length() - 1));
+					int var18 = inputText.endsWith("c") ? -2
+							: (inputText.endsWith("d") ? -1
+									: (inputText.endsWith("da") ? 1
+											: (inputText.endsWith("h") ? 2 : (inputText.endsWith("%") ? -2 : 0))));
+					int var19 = var11.indexOf(inputText.charAt(inputText.length() - 1));
 					var6 = var18 != 0 ? var18 : (-1 < var19 ? var19 * 3 - 24 : 0);
 				}
 			}
 
-			if (!var9 || var1.length() >= 3 && var5 >= 0)
+			if (!var9 || inputText.length() >= 3 && var5 >= 0)
 			{
-				if (var10)
+				if (isHex)
 				{
-					if (var1.length() < 3)
+					if (inputText.length() < 3)
 					{
 						return;
 					}
 
 					try
 					{
-						var8 = new BigInteger(var1.substring(2, var2), 16);
+						var8 = new BigInteger(inputText.substring(2, var2), 16);
 					} catch (Exception var16)
 					{
 						return;
@@ -1493,7 +1493,7 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 					{
 						try
 						{
-							var7 = new BigDecimal(var1.substring(0, var2));
+							var7 = new BigDecimal(inputText.substring(0, var2));
 							break;
 						} catch (Exception var17)
 						{
