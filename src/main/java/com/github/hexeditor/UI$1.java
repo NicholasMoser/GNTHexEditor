@@ -1,9 +1,14 @@
 package com.github.hexeditor;
 
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
@@ -24,7 +29,12 @@ final class UI$1 implements Runnable
 						? "hexeditor.jar currently linked to  " + this.val$args[1]
 						: "GNT Hex Editor",
 				GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration());
-		frame.setIconImage((new ImageIcon(UI.logo)).getImage());
+		List<Image> icons = new ArrayList<Image>();
+		icons.add((new ImageIcon(getClass().getClassLoader().getResource("com/github/hexeditor/naru16.gif"))).getImage());
+		icons.add((new ImageIcon(getClass().getClassLoader().getResource("com/github/hexeditor/naru32.gif"))).getImage());
+		icons.add((new ImageIcon(getClass().getClassLoader().getResource("com/github/hexeditor/naru64.gif"))).getImage());
+		icons.add((new ImageIcon(getClass().getClassLoader().getResource("com/github/hexeditor/naru128.gif"))).getImage());
+		frame.setIconImages(icons);
 		frame.setDefaultCloseOperation(3);
 		Rectangle graphicsBounds = frame.getGraphicsConfiguration().getBounds();
 		Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(frame.getGraphicsConfiguration());

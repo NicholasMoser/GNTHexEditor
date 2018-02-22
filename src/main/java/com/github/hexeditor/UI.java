@@ -21,16 +21,6 @@ public class UI extends JApplet
 	private static JPanel panel = new JPanel(new BorderLayout());
 	private static Runtime runtime = Runtime.getRuntime();
 	private static String[] arg = null;
-	static final byte[] logo = new byte[]
-	{ (byte) 71, (byte) 73, (byte) 70, (byte) 56, (byte) 57, (byte) 97, (byte) 16, (byte) 0, (byte) 16, (byte) 0,
-			(byte) -128, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) -1, (byte) -1, (byte) -1, (byte) 33,
-			(byte) -7, (byte) 4, (byte) 1, (byte) 0, (byte) 0, (byte) 1, (byte) 0, (byte) 44, (byte) 0, (byte) 0,
-			(byte) 0, (byte) 0, (byte) 16, (byte) 0, (byte) 16, (byte) 0, (byte) 0, (byte) 2, (byte) 40, (byte) -116,
-			(byte) -113, (byte) -87, (byte) -101, (byte) 0, (byte) -26, (byte) 24, (byte) 124, (byte) 33, (byte) 74,
-			(byte) 107, (byte) 25, (byte) -90, (byte) -102, (byte) 70, (byte) 14, (byte) 77, (byte) -50, (byte) -57,
-			(byte) 109, (byte) -93, (byte) -9, (byte) 100, (byte) -37, (byte) 49, (byte) 34, (byte) -85, (byte) -24,
-			(byte) -94, (byte) 83, (byte) 85, (byte) -54, (byte) -86, (byte) 76, (byte) 87, (byte) -115, (byte) -60,
-			(byte) -9, (byte) 71, (byte) 1, (byte) 0, (byte) 59 };
 	public static JRootPane rootPane = null;
 	public static String browse = null;
 	public static final String htmlBase = null;
