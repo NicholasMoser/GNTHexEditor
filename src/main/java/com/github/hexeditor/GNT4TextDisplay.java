@@ -94,11 +94,9 @@ public class GNT4TextDisplay extends GNT4Module
         jEditorPane.setEditorKit(kit);
         StyleSheet styleSheet = kit.getStyleSheet();
         styleSheet.addRule("body {color:#000; font-family:times; margin: 4px; }");
-        styleSheet.addRule("h1 {color: blue;}");
-        styleSheet.addRule("h2 {color: #ff0000;}");
 
         String html = "<html><body>";
-        html += "<table style=\"width:100%\"><tr><th>Base 10 Pointer</th><th>Base 16 Pointer</th><th>Text</th></tr>";
+        html += "<table style=\"width:100%\" border=\"1\"><tr><th>Base 10 Pointer</th><th>Base 16 Pointer</th><th>Text</th></tr>";
         html = addPointerHTMLRow(html, pointersToText);
         html += "</table></body></html>";
                           
@@ -122,6 +120,10 @@ public class GNT4TextDisplay extends GNT4Module
         j.setVisible(true);
 	}
 	
+	/**
+	 * Saves a CSV file for each pointer and its associated text
+	 * @param pointersToText the pointer to text map
+	 */
 	private void saveAsCsv(Map<Integer, String> pointersToText)
 	{
 		try
@@ -130,7 +132,7 @@ public class GNT4TextDisplay extends GNT4Module
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV files", "csv");
 			fc.setFileFilter(filter);
 			fc.setSelectedFile(new File("shiftjis_text.csv"));
-			int returnVal = fc.showOpenDialog(editor);
+			int returnVal = fc.showSaveDialog(editor);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
 				PrintWriter pw = new PrintWriter(file);
