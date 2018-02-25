@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
@@ -125,6 +127,9 @@ public class GNT4TextDisplay extends GNT4Module
 		try
 		{
 			final JFileChooser fc = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV files", "csv");
+			fc.setFileFilter(filter);
+			fc.setSelectedFile(new File("shiftjis_text.csv"));
 			int returnVal = fc.showOpenDialog(editor);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
@@ -138,7 +143,7 @@ public class GNT4TextDisplay extends GNT4Module
 		        sb.append('\n');
 				for (Map.Entry<Integer, String> entry : pointersToText.entrySet()) {
 					int pointer = entry.getKey();
-					String text = entry.getValue();
+					String text = new String( entry.getValue().getBytes("utf-8") );
 			        sb.append(pointer);
 			        sb.append(',');
 			        sb.append(String.format("0x%08X", pointer));
