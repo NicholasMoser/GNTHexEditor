@@ -1133,6 +1133,17 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 		case KeyEvent.VK_G:
 			this.goTo(JOptionPane.showInputDialog(this, var8, "Hexeditor.jar: GoTo", JOptionPane.PLAIN_MESSAGE));
 			break;
+		case KeyEvent.VK_J:
+			if (loadedFile != null)
+			{
+				GNT4TextDisplay gnt4TextDisplay = new GNT4TextDisplay(this);
+				gnt4TextDisplay.displayTextGNT4();
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, "Please open a file in the hex editor.");
+			}
+			break;
 		case KeyEvent.VK_K:
 			if (loadedFile != null)
 			{
