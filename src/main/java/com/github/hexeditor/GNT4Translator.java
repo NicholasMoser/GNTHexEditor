@@ -2,20 +2,46 @@ package com.github.hexeditor;
 
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+/**
+ * A GNT4 module for text translation. Given one or more pointers, allows the user to translate the text associated.
+ */
 public class GNT4Translator extends GNT4Module
 {
 	Map<Character, byte[]> sjisMap;
-
+	
+	public enum TranslateOption
+	{
+		REPLACE("Replace"),
+		APPEND("Append"),
+		SKIP("Skip"),
+		UNKNOWN("Unknown");
+		
+		private final String text;
+		
+		TranslateOption(final String text)
+		{
+			this.text = text;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return text;
+		}
+	}
+	
 	/**
 	 * Constructor for GNT4Translator
 	 * @param editor the hex editor window
@@ -24,7 +50,7 @@ public class GNT4Translator extends GNT4Module
 	{
 		super(editor);
 		sjisMap = new HashMap<Character, byte[]>();
-		sjisMap.put('~', new byte[] {0x00, 0x1A} );
+		sjisMap.put('~', new byte[] {0x00, 0x0A} );
 		sjisMap.put(' ', new byte[] {0x40, (byte) 129} );
 		sjisMap.put(',', new byte[] {0x43, (byte) 129} );
 		sjisMap.put('.', new byte[] {0x44, (byte) 129} );
@@ -135,19 +161,23 @@ public class GNT4Translator extends GNT4Module
 			return;
 		}
 		
-		// Get list of text pointers
+		// Get origin pointers and their associated text pointers
+		List<Integer> originPointers = new ArrayList<Integer>();
 		List<Integer> textPointers = new ArrayList<Integer>();
 		byte[] fileBytes = BinUtil.getFileBytes(editor);
-		for (int i = pointerTableStart; i <= pointerTableEnd; i += 4)
+		int appendPosition = fileBytes.length;
+		for (int originPointer = pointerTableStart; originPointer <= pointerTableEnd; originPointer += 4)
 		{
-			textPointers.add(BinUtil.getUint32Big(fileBytes, i));
+			originPointers.add(originPointer);
+			textPointers.add(BinUtil.getUint32Big(fileBytes, originPointer));
 		}
 		
 		// For each text pointer, prompt the user to translate the text at its location
 		for (int i = 0; i < textPointers.size(); i++)
 		{
-			int pointer = textPointers.get(i);
-			String sjisText = BinUtil.readShiftJisText(fileBytes, pointer);
+			int originPointer = originPointers.get(i);
+			int textPointer = textPointers.get(i);
+			String sjisText = BinUtil.readShiftJisText(fileBytes, textPointer);
 			TextEdit textEdit = getTranslatedText(sjisText, i + 1, textPointers.size());
 			if (textEdit == null)
 			{
@@ -155,9 +185,20 @@ public class GNT4Translator extends GNT4Module
 				return;
 			}
 			byte[] translatedBytes = textEdit.getTextBytes();
-			boolean isAppendMode = textEdit.isAppendMode();
+			TranslateOption translateOption = textEdit.getTranslateOption();
 			
-			BinUtil.modifyEditor(editor, translatedBytes, pointer);
+			if (translateOption == TranslateOption.REPLACE)
+			{
+				BinUtil.modifyEditor(editor, translatedBytes, textPointer);
+			}
+			else if (translateOption == TranslateOption.APPEND)
+			{
+				BinUtil.modifyEditor(editor, translatedBytes, appendPosition);
+				byte[] appendPositionBytes = ByteBuffer.allocate(4).putInt(appendPosition).array();
+				BinUtil.modifyEditor(editor, appendPositionBytes, originPointer);
+				//fileBytes = BinUtil.getFileBytes(editor);
+				appendPosition += translatedBytes.length;
+			}
 		}
 		
 		editor.goTo(Integer.toString(textPointers.get(0)));
@@ -196,7 +237,7 @@ public class GNT4Translator extends GNT4Module
 
 	/**
 	 * Asks the user for the text to translate the shift-jis text with.
-	 * Returns the shift-jis bytes for the translated string.
+	 * Returns the shift-jis bytes for the translated string or null if exit.
 	 * 
 	 * @param sjisText the shift-jis text to be translated
 	 * @param currentPointer the current pointer
@@ -207,7 +248,7 @@ public class GNT4Translator extends GNT4Module
 	{
 		boolean validValue = false;
 		byte[] shiftJisBytes = null;
-		boolean isAppendMode = false;
+		TranslateOption translateOption = TranslateOption.UNKNOWN;
 		while(!validValue)
 		{
 			JPanel textPanel = new JPanel(new GridLayout(4,1));
@@ -227,21 +268,30 @@ public class GNT4Translator extends GNT4Module
 	        JTextField editableField = new JTextField(sjisText);
 	        editableField.setFont(editableField.getFont().deriveFont(Font.PLAIN, 24));
 			textPanel.add(editableField);
-	        String[] options = {"Insert", "Append", "Cancel"};
-	        int inputValue = JOptionPane.showOptionDialog(editor, textPanel, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
-			if (inputValue == -1 || inputValue == 2)
+	        String[] options = {TranslateOption.REPLACE.toString(), TranslateOption.APPEND.toString(), TranslateOption.SKIP.toString(), "Exit"};
+	        int inputValue = JOptionPane.showOptionDialog(editor, textPanel, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);	
+			switch(inputValue)
 			{
+			case 0:
+				translateOption = TranslateOption.REPLACE;
+				break;
+			case 1:
+				translateOption = TranslateOption.APPEND;
+				break;
+			case 2:
+				return new TextEdit(new byte[0], TranslateOption.SKIP);
+			case 3:
+			case -1:
 				return null;
 			}
-			String inputText = editableField.getText().replaceAll("[LINE]", "~").replaceAll("[END]", "");
-			
-			if (inputText.length() == sjisText.length())
+			// Need to use \\b as word boundaries for regex
+			String inputText = editableField.getText().replaceAll(Pattern.quote("[LINE]"), "~").replaceAll(Pattern.quote("[END]"), "");
+			if (translateOption != TranslateOption.REPLACE || inputText.length() == sjisText.length())
 			{
 				shiftJisBytes = asciiToShiftJisBytes(inputText);
 				if (shiftJisBytes != null)
 				{
 					validValue = true;
-					isAppendMode = inputValue == 1;
 				}
 				else
 				{
@@ -253,18 +303,18 @@ public class GNT4Translator extends GNT4Module
 				JOptionPane.showMessageDialog(editor, "For replacement, make sure you match the same number of characters.");
 			}
 		}
-		return new TextEdit(shiftJisBytes, isAppendMode);
+		return new TextEdit(shiftJisBytes, translateOption);
 	}
 	
 	public class TextEdit
 	{
 		private byte[] textBytes;
-		private boolean isAppendMode;
+		private TranslateOption translateOption;
 
-		public TextEdit(byte[] textBytes, boolean isAppendMode)
+		public TextEdit(byte[] textBytes, TranslateOption translateOption)
 		{
 			this.textBytes = textBytes;
-			this.isAppendMode = isAppendMode;
+			this.translateOption = translateOption;
 		}
 		
 		public byte[] getTextBytes()
@@ -272,9 +322,9 @@ public class GNT4Translator extends GNT4Module
 			return textBytes;
 		}
 		
-		public boolean isAppendMode()
+		public TranslateOption getTranslateOption()
 		{
-			return isAppendMode;
+			return translateOption;
 		}
 	}
 }

@@ -62,7 +62,7 @@ public class GNT4TextDisplay extends GNT4Module
 			return;
 		}
 		
-		// Get list of text pointers
+		// Get origin pointers and their associated text pointers
 		List<Integer> originPointers = new ArrayList<Integer>();
 		List<Integer> textPointers = new ArrayList<Integer>();
 		byte[] fileBytes = BinUtil.getFileBytes(editor);
@@ -120,7 +120,6 @@ public class GNT4TextDisplay extends GNT4Module
         JFrame j = new JFrame("GNT4 Text Display");
         j.getContentPane().add(scrollPane, BorderLayout.CENTER);
         j.getContentPane().add(saveButton, BorderLayout.SOUTH);
-        j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         j.setSize(new Dimension(800,600));
         j.setLocationRelativeTo(null);
         j.setVisible(true);
@@ -178,11 +177,10 @@ public class GNT4TextDisplay extends GNT4Module
 	}
 
 	/**
-	 * 
-	 * @param html
-	 * @param pointer
-	 * @param text
-	 * @return
+	 * Creates HTML rows for each origin pointer, containing the origin pointer, text pointer,
+	 * and associated text. 
+	 * @param pointersToText the pointer to text map
+	 * @return HTML rows for the pointer to text map
 	 */
 	private String createPointerHTMLRow(Map<Integer, Pair<Integer, String>> pointersToText)
 	{
