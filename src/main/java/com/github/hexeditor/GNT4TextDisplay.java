@@ -5,13 +5,12 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -23,6 +22,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
+
+import javafx.util.Pair;
 
 /**
  * A GNT4 module for text display. Given one or more pointers, displays the associated text for each pointer
@@ -62,29 +63,33 @@ public class GNT4TextDisplay extends GNT4Module
 		}
 		
 		// Get list of text pointers
+		List<Integer> originPointers = new ArrayList<Integer>();
 		List<Integer> textPointers = new ArrayList<Integer>();
 		byte[] fileBytes = BinUtil.getFileBytes(editor);
-		for (int i = pointerTableStart; i <= pointerTableEnd; i += 4)
+		for (int originPointer = pointerTableStart; originPointer <= pointerTableEnd; originPointer += 4)
 		{
-			textPointers.add(BinUtil.getUint32Big(fileBytes, i));
+			originPointers.add(originPointer);
+			textPointers.add(BinUtil.getUint32Big(fileBytes, originPointer));
 		}
 		
-		// For each text pointer, get the text and display it to the user
-		Map<Integer, String> pointersToText = new HashMap<Integer, String>();
+		// This maps the origin pointer to a pair containing the text pointer it links to along with its associated string
+		Map<Integer, Pair<Integer, String>> pointersToText = new TreeMap<Integer, Pair<Integer, String>>();
 		for (int i = 0; i < textPointers.size(); i++)
 		{
-			int pointer = textPointers.get(i);
-			String sjisText = BinUtil.readShiftJisText(fileBytes, pointer);
-			pointersToText.put(pointer, sjisText);
+			int originPointer = originPointers.get(i);
+			int textPointer = textPointers.get(i);
+			String sjisText = BinUtil.readShiftJisText(fileBytes, textPointer);
+			Pair<Integer, String> textPair = new Pair<Integer, String>(textPointer, sjisText);
+			pointersToText.put(originPointer, textPair);
 		}
 		displayText(pointersToText);
 	}
 	
 	/**
 	 * Creates a window to display text for each pointer.
-	 * @param pointersToText a map of text for each pointer
+	 * @param pointersToText map of the origin pointer to a pair containing the text pointer it links to along with its associated string
 	 */
-	private void displayText(final Map<Integer, String> pointersToText)
+	private void displayText(final Map<Integer, Pair<Integer, String>> pointersToText)
 	{
         JEditorPane jEditorPane = new JEditorPane();
         jEditorPane.setEditable(false);
@@ -96,8 +101,9 @@ public class GNT4TextDisplay extends GNT4Module
         styleSheet.addRule("body {color:#000; font-family:times; margin: 4px; }");
 
         String html = "<html><body>";
-        html += "<table style=\"width:100%\" border=\"1\"><tr><th>Base 10 Pointer</th><th>Base 16 Pointer</th><th>Text</th></tr>";
-        html = addPointerHTMLRow(html, pointersToText);
+        html += "<table style=\"width:100%\" border=\"1\"><tr><th>Origin Pointer (Dec)</th><th>Origin Pointer (Hex)</th>"
+        		+ "<th>Text Pointer (Dec)</th><th>Text Pointer (Hex)</th><th>Text</th></tr>";
+        html += createPointerHTMLRow(pointersToText);
         html += "</table></body></html>";
                           
         Document doc = kit.createDefaultDocument();
@@ -124,7 +130,7 @@ public class GNT4TextDisplay extends GNT4Module
 	 * Saves a CSV file for each pointer and its associated text
 	 * @param pointersToText the pointer to text map
 	 */
-	private void saveAsCsv(Map<Integer, String> pointersToText)
+	private void saveAsCsv(Map<Integer, Pair<Integer, String>> pointersToText)
 	{
 		try
 		{
@@ -137,18 +143,27 @@ public class GNT4TextDisplay extends GNT4Module
 				File file = fc.getSelectedFile();
 				PrintWriter pw = new PrintWriter(file);
 		        StringBuilder sb = new StringBuilder();
-		        sb.append("Base 10 Pointer");
+		        sb.append("Origin Pointer (Dec)");
 		        sb.append(',');
-		        sb.append("Base 16 Pointer");
+		        sb.append("Origin Pointer (Hex)");
+		        sb.append(',');
+		        sb.append("Text Pointer (Dec)");
+		        sb.append(',');
+		        sb.append("Text Pointer (Hex)");
 		        sb.append(',');
 		        sb.append("Text");
 		        sb.append('\n');
-				for (Map.Entry<Integer, String> entry : pointersToText.entrySet()) {
-					int pointer = entry.getKey();
-					String text = new String( entry.getValue().getBytes("utf-8") );
-			        sb.append(pointer);
+				for (Entry<Integer, Pair<Integer, String>> entry : pointersToText.entrySet()) {
+					int originPointer = entry.getKey();
+					int textPointer = entry.getValue().getKey();
+					String text = new String(entry.getValue().getValue().getBytes("utf-8"));
+			        sb.append(originPointer);
 			        sb.append(',');
-			        sb.append(String.format("0x%08X", pointer));
+			        sb.append(String.format("0x%08X", originPointer));
+			        sb.append(',');
+			        sb.append(textPointer);
+			        sb.append(',');
+			        sb.append(String.format("0x%08X", textPointer));
 			        sb.append(',');
 			        sb.append(text);
 			        sb.append('\n');
@@ -169,15 +184,21 @@ public class GNT4TextDisplay extends GNT4Module
 	 * @param text
 	 * @return
 	 */
-	private String addPointerHTMLRow(String html, Map<Integer, String> pointersToText)
+	private String createPointerHTMLRow(Map<Integer, Pair<Integer, String>> pointersToText)
 	{
-		for (Map.Entry<Integer, String> entry : pointersToText.entrySet()) {
-			int pointer = entry.getKey();
-			String text = entry.getValue();
+		String html = "";
+		for (Entry<Integer, Pair<Integer, String>> entry : pointersToText.entrySet()) {
+			int originPointer = entry.getKey();
+			int textPointer = entry.getValue().getKey();
+			String text = entry.getValue().getValue();
 			html += "<tr><th>";
-			html += pointer;
+			html += originPointer;
 			html += "</th><th>";
-			html += String.format("0x%08X", pointer);
+			html += String.format("0x%08X", originPointer);
+			html += "</th><th>";
+			html += textPointer;
+			html += "</th><th>";
+			html += String.format("0x%08X", textPointer);
 			html += "</th><th>";
 	        html += text.replace("↓", "<br>");
 	        html += "</th></tr>";

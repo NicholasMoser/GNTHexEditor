@@ -1,11 +1,16 @@
 package com.github.hexeditor;
 
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class GNT4Translator extends GNT4Module
 {
@@ -129,12 +134,6 @@ public class GNT4Translator extends GNT4Module
 			JOptionPane.showMessageDialog(editor, "Please make sure your pointers are in increments of four (inclusive).");
 			return;
 		}
-//		boolean appendText = appendText();
-//		int newTextLocationOffset = -1;
-//		if (appendText)
-//		{
-//			newTextLocationOffset = getNewTextLocationOffset();
-//		}
 		
 		// Get list of text pointers
 		List<Integer> textPointers = new ArrayList<Integer>();
@@ -149,12 +148,15 @@ public class GNT4Translator extends GNT4Module
 		{
 			int pointer = textPointers.get(i);
 			String sjisText = BinUtil.readShiftJisText(fileBytes, pointer);
-			byte[] translatedBytes = getTranslatedText(sjisText, i + 1, textPointers.size());
-			if (translatedBytes == null)
+			TextEdit textEdit = getTranslatedText(sjisText, i + 1, textPointers.size());
+			if (textEdit == null)
 			{
 				editor.goTo(Integer.toString(textPointers.get(0)));
 				return;
 			}
+			byte[] translatedBytes = textEdit.getTextBytes();
+			boolean isAppendMode = textEdit.isAppendMode();
+			
 			BinUtil.modifyEditor(editor, translatedBytes, pointer);
 		}
 		
@@ -201,29 +203,45 @@ public class GNT4Translator extends GNT4Module
 	 * @param numPointers the total number of pointers
 	 * @return the translated text
 	 */
-	private byte[] getTranslatedText(String sjisText, int currentPointer, int numPointers)
+	private TextEdit getTranslatedText(String sjisText, int currentPointer, int numPointers)
 	{
 		boolean validValue = false;
 		byte[] shiftJisBytes = null;
+		boolean isAppendMode = false;
 		while(!validValue)
 		{
-			String message = "Please edit the following shift-jis text.\n";
-			message += "You have " + sjisText.length() + " characters you can use.\n";
-			message += "You are at pointer " + currentPointer + " of " + numPointers;
-			String title = "Replace Shift-Jis Text";
-			String inputValue = (String) JOptionPane.showInputDialog(editor, message, title, JOptionPane.PLAIN_MESSAGE, null, null, sjisText);
-			if (inputValue == null)
+			JPanel textPanel = new JPanel(new GridLayout(4,1));
+			String messageLine1 = "Please edit the following shift-jis text.";
+			JLabel messageLabel1 = new JLabel(messageLine1);
+			messageLabel1.setFont(messageLabel1.getFont().deriveFont(Font.PLAIN, 16));
+			String messageLine2 = "You have " + sjisText.length() + " characters you can use for replacement.";
+			JLabel messageLabel2 = new JLabel(messageLine2);
+			messageLabel2.setFont(messageLabel2.getFont().deriveFont(Font.PLAIN, 16));
+			String messageLine3 = "You are at pointer " + currentPointer + " of " + numPointers;
+			JLabel messageLabel3 = new JLabel(messageLine3);
+			messageLabel3.setFont(messageLabel3.getFont().deriveFont(Font.PLAIN, 16));
+			textPanel.add(messageLabel1);
+			textPanel.add(messageLabel2);
+			textPanel.add(messageLabel3);
+			String title = "Translate Shift-Jis Text";
+	        JTextField editableField = new JTextField(sjisText);
+	        editableField.setFont(editableField.getFont().deriveFont(Font.PLAIN, 24));
+			textPanel.add(editableField);
+	        String[] options = {"Insert", "Append", "Cancel"};
+	        int inputValue = JOptionPane.showOptionDialog(editor, textPanel, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
+			if (inputValue == -1 || inputValue == 2)
 			{
 				return null;
 			}
-			inputValue = inputValue.replaceAll("[LINE]", "~").replaceAll("[END]", "");
+			String inputText = editableField.getText().replaceAll("[LINE]", "~").replaceAll("[END]", "");
 			
-			if (inputValue.length() == sjisText.length())
+			if (inputText.length() == sjisText.length())
 			{
-				shiftJisBytes = asciiToShiftJisBytes(inputValue);
+				shiftJisBytes = asciiToShiftJisBytes(inputText);
 				if (shiftJisBytes != null)
 				{
 					validValue = true;
+					isAppendMode = inputValue == 1;
 				}
 				else
 				{
@@ -232,52 +250,31 @@ public class GNT4Translator extends GNT4Module
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(editor, "Make sure you match the same number of characters.");
+				JOptionPane.showMessageDialog(editor, "For replacement, make sure you match the same number of characters.");
 			}
 		}
-		return shiftJisBytes;
+		return new TextEdit(shiftJisBytes, isAppendMode);
 	}
 	
-	/**
-	 * Asks the user if they wish to insert text at the end of the document.
-	 * @return if the user wishes to insert text at the end of the document.
-	 */
-	private boolean appendText()
+	public class TextEdit
 	{
-		String[] options = new String[] {"Yes", "No"};
-		String message = "Do you wish to insert text at the end of the file?\n";
-		message += "Note: This is primarily used for .seq editing.\n";
-		String title = "Append Text";
-		int appendTextFlag = JOptionPane.showOptionDialog(editor, message, title, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
-		        null, options, options[0]);
-		return appendTextFlag == 0 ? true : false;
-	}
+		private byte[] textBytes;
+		private boolean isAppendMode;
 
-	/**
-	 * Asks the user for the new text location offset. Only decimal (base-10) values are allowed).
-	 * @return the pointer table start value
-	 */
-	private int getNewTextLocationOffset()
-	{
-		boolean validValue = false;
-		int value = 0;
-		while(!validValue)
+		public TextEdit(byte[] textBytes, boolean isAppendMode)
 		{
-			String message = "Please enter the new text location offset.\n";
-			message += "Note: Input it as a decimal (base-10) value.\n";
-			message += "Example: 258";
-			String title = "Pointer Table Start";
-			String inputValue = JOptionPane.showInputDialog(editor, message, title, JOptionPane.PLAIN_MESSAGE);
-			try
-			{
-				value = Integer.valueOf(inputValue);
-				validValue = true;
-			}
-			catch (NumberFormatException e)
-			{
-				JOptionPane.showMessageDialog(editor, "Please enter a valid number.");
-			}
+			this.textBytes = textBytes;
+			this.isAppendMode = isAppendMode;
 		}
-		return value;
+		
+		public byte[] getTextBytes()
+		{
+			return textBytes;
+		}
+		
+		public boolean isAppendMode()
+		{
+			return isAppendMode;
+		}
 	}
 }
