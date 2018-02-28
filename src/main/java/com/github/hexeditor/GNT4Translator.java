@@ -54,12 +54,14 @@ public class GNT4Translator extends GNT4Module
 		sjisMap.put(' ', new byte[] {0x40, (byte) 129} );
 		sjisMap.put(',', new byte[] {0x43, (byte) 129} );
 		sjisMap.put('.', new byte[] {0x44, (byte) 129} );
+		sjisMap.put('·', new byte[] {0x45, (byte) 129} );
 		sjisMap.put(':', new byte[] {0x46, (byte) 129} );
 		sjisMap.put(';', new byte[] {0x47, (byte) 129} );
 		sjisMap.put('?', new byte[] {0x48, (byte) 129} );
 		sjisMap.put('!', new byte[] {0x49, (byte) 129} );
 		sjisMap.put('"', new byte[] {0x4e, (byte) 129} );
-		sjisMap.put('\'', new byte[] {0x65, (byte) 129} );
+		sjisMap.put('`', new byte[] {0x66, (byte) 129} );
+		sjisMap.put('\'', new byte[] {0x66, (byte) 129} );
 		sjisMap.put('(', new byte[] {0x69, (byte) 129} );
 		sjisMap.put(')', new byte[] {0x6a, (byte) 129} );
 		sjisMap.put('[', new byte[] {0x6d, (byte) 129} );
