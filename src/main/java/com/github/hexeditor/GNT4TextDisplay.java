@@ -26,10 +26,10 @@ import javax.swing.text.html.StyleSheet;
 import javafx.util.Pair;
 
 /**
- * A GNT4 module for text display. Given one or more pointers, displays the associated text for each pointer
+ * A GNT module for text display. Given one or more pointers, displays the associated text for each pointer
  * to the user.
  */
-public class GNT4TextDisplay extends GNT4Module
+public class GNT4TextDisplay extends GNTModule
 {
 	/**
 	 * Constructor for GNT4TextDisplay

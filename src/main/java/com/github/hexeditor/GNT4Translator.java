@@ -15,9 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 /**
- * A GNT4 module for text translation. Given one or more pointers, allows the user to translate the text associated.
+ * A GNT module for text translation. Given one or more pointers, allows the user to translate the text associated.
  */
-public class GNT4Translator extends GNT4Module
+public class GNT4Translator extends GNTModule
 {
 	Map<Character, byte[]> sjisMap;
 	
@@ -198,7 +198,6 @@ public class GNT4Translator extends GNT4Module
 				BinUtil.modifyEditor(editor, translatedBytes, appendPosition);
 				byte[] appendPositionBytes = ByteBuffer.allocate(4).putInt(appendPosition).array();
 				BinUtil.modifyEditor(editor, appendPositionBytes, originPointer);
-				//fileBytes = BinUtil.getFileBytes(editor);
 				appendPosition += translatedBytes.length;
 			}
 		}
@@ -242,7 +241,7 @@ public class GNT4Translator extends GNT4Module
 	 * Returns the shift-jis bytes for the translated string or null if exit.
 	 * 
 	 * @param sjisText the shift-jis text to be translated
-	 * @param currentPointer the current pointer
+	 * @param currentPointer the current pointer for display purposes
 	 * @param numPointers the total number of pointers
 	 * @return the translated text
 	 */

@@ -5,7 +5,7 @@ import javax.swing.JOptionPane;
 /**
  * Parent class for GNT4 modules. Contains common functionality across different GNT4 modules.
  */
-public class GNT4Module
+public class GNTModule
 {
 	BinEdit editor;
 
@@ -13,7 +13,7 @@ public class GNT4Module
 	 * Constructor for GNT4Module
 	 * @param editor the hex editor window
 	 */
-	public GNT4Module(BinEdit editor)
+	public GNTModule(BinEdit editor)
 	{
 		this.editor = editor;
 	}
@@ -52,7 +52,7 @@ public class GNT4Module
 			}
 			catch (NumberFormatException e)
 			{
-				JOptionPane.showMessageDialog(editor, "Please enter a valid decimal (base-10) value.");
+				JOptionPane.showMessageDialog(editor, "Please enter a valid number.");
 			}
 		}
 		return value;

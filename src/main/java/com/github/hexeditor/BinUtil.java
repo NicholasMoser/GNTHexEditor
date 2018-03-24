@@ -96,11 +96,11 @@ class BinUtil
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		if (bytes.length < 2)
 		{
-			return "Not enough bytes to parse, move cursor back.";
+			throw new IllegalArgumentException("Not enough bytes to parse, move cursor back.");
 		}
 		if (bytes[0] != 0x00 || bytes[1] != 0x00)
 		{
-			return "Move cursor to start of double zero byte.";
+			throw new IllegalArgumentException("Move cursor to start of double zero byte.");
 		}
 		for (int i = offset; i < bytes.length; i += 4)
 		{
@@ -126,6 +126,50 @@ class BinUtil
 		byte[] textBytes = out.toByteArray();
 		
 		Charset cs = Charset.forName("shift-jis");
+		return new String(textBytes, cs);
+	}
+	
+	/**
+	 * Reads UTF-16 bytes starting at an offset into a String.
+	 * It will replace \r with a right arrow, replace \n with a down arrow, and end at double zero byte.
+	 * 
+	 * @param bytes the bytes to read
+	 * @param offset the offset to start at
+	 * @return the read UTF-16 String
+	 */
+	public static String readUtf16Text(byte[] bytes, int offset)
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		if (bytes.length < 2)
+		{
+			throw new IllegalArgumentException("Not enough bytes to parse, move cursor back.");
+		}
+		for (int i = offset; i < bytes.length; i += 2)
+		{
+			// Reverse order to change big to little endian
+			byte byte1 = bytes[i];
+			byte byte2 = bytes[i + 1];
+			if (byte1 == 0x00 && byte2 == 0x00)
+			{
+				break;
+			}
+			else if (byte1 == 0x00 && byte2 == 0x0D) // \r
+			{
+				byte1 = (byte) 33;
+				byte2 = (byte) 146;
+			}
+			else if (byte1 == 0x00 && byte2 == 0x0A) // \n
+			{
+				byte1 = (byte) 33;
+				byte2 = (byte) 147;
+			}
+			
+			out.write(byte1);
+			out.write(byte2);
+		}
+		byte[] textBytes = out.toByteArray();
+		
+		Charset cs = Charset.forName("UTF-16");
 		return new String(textBytes, cs);
 	}
 	

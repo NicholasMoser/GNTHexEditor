@@ -446,13 +446,15 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 
 		// This logic is to handle showing shift-jis on the right-hand side of the screen instead of ASCII
 		Charset cs = null;
-		boolean useShiftJis = false;
-		boolean secondShiftJisByte = false;
-		byte[] shiftJisBytes = new byte[2];
+		boolean secondByte = false;
+		byte[] doubleByte = new byte[2];
+		if (this.topPanel.viewCBox[1].getSelectedIndex() == 12)
+		{
+			cs = Charset.forName("UTF-16");
+		}
 		if (this.topPanel.viewCBox[1].getSelectedIndex() == 13)
 		{
-			useShiftJis = true;
-			cs = Charset.forName("shift-jis");
+			cs = Charset.forName("Shift_JIS");
 		}
 		
 		// Draws the hex numbers left to right then top to bottom with their associated representation on the editor screen
@@ -475,19 +477,34 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			gfx.drawString("" + hex, this.cShift[hex] + this.wChar * this.xNib[var8 * 2 + 1],
 					this.hMargin + this.hChar * row);
 			// Byte representation
-			if (useShiftJis)
+			if ("Shift_JIS".equals(cs.name()))
 			{
-				if (secondShiftJisByte)
+				if (secondByte)
 				{
-					shiftJisBytes[0] = var5[0];
-					String shiftJisCharacter = new String(shiftJisBytes, cs);
+					doubleByte[0] = var5[0];
+					String shiftJisCharacter = new String(doubleByte, cs);
 					gfx.drawString(shiftJisCharacter, this.wChar * this.xTxt[var8], this.hMargin + this.hChar * row);
-					secondShiftJisByte = false;
+					secondByte = false;
 				}
 				else
 				{
-					shiftJisBytes[1] = var5[0];
-					secondShiftJisByte = true;
+					doubleByte[1] = var5[0];
+					secondByte = true;
+				}
+			}
+			else if ("UTF-16".equals(cs.name()))
+			{
+				if (secondByte)
+				{
+					doubleByte[1] = var5[0];
+					String shiftJisCharacter = new String(doubleByte, cs);
+					gfx.drawString(shiftJisCharacter, this.wChar * this.xTxt[var8], this.hMargin + this.hChar * row);
+					secondByte = false;
+				}
+				else
+				{
+					doubleByte[0] = var5[0];
+					secondByte = true;
 				}
 			}
 			else
@@ -1138,6 +1155,17 @@ class BinEdit extends JComponent implements MouseListener, MouseMotionListener, 
 			{
 				GNT4TextDisplay gnt4TextDisplay = new GNT4TextDisplay(this);
 				gnt4TextDisplay.displayTextGNT4();
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, "Please open a file in the hex editor.");
+			}
+			break;
+		case KeyEvent.VK_1:
+			if (loadedFile != null)
+			{
+				GNTSPTranslator gntSPTranslator = new GNTSPTranslator(this);
+				gntSPTranslator.translateGNTSP();
 			}
 			else
 			{

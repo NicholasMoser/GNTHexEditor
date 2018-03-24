@@ -93,7 +93,7 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 						"Insert (before)", "Delete" },
 				{ "View", "Goto", "Toggle position Mark", "Down to next mark", "Up to previous mark ", "Toggle caret ",
 						"Higher fontSize", "Lower fontSize", "Black/White background" },
-				{ "GNT", "GNT4 Translation", "GNT Text Display" },
+				{ "GNT", "GNT4 Translation", "GNT4 Text Display", "GNTSP Translation" },
 				{ "hidden", "Font +", "Font -" },
 				{ "Help", "Toggle help" } };
 		// These mnemonics are keys that make an already visible menu item be chosen.
@@ -104,7 +104,7 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 						KeyEvent.VK_V, KeyEvent.VK_F, KeyEvent.VK_I, KeyEvent.VK_D },
 				{ KeyEvent.VK_V, KeyEvent.VK_G, KeyEvent.VK_M, KeyEvent.VK_D, KeyEvent.VK_U, KeyEvent.VK_T,
 						KeyEvent.VK_H, KeyEvent.VK_L, KeyEvent.VK_W },
-				{ KeyEvent.VK_K, KeyEvent.VK_K, KeyEvent.VK_J },
+				{ KeyEvent.VK_K, KeyEvent.VK_K, KeyEvent.VK_J, KeyEvent.VK_1 },
 				{ KeyEvent.VK_H, KeyEvent.VK_PLUS, KeyEvent.VK_MINUS },
 				{ KeyEvent.VK_H, KeyEvent.VK_H } };
 		// These key codes are combined with the modifiers to chose a menu item that is
@@ -116,7 +116,7 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 						KeyEvent.VK_V, KeyEvent.VK_F, KeyEvent.VK_INSERT, KeyEvent.VK_DELETE },
 				{ KeyEvent.VK_V, KeyEvent.VK_G, KeyEvent.VK_M, KeyEvent.VK_D, KeyEvent.VK_U, KeyEvent.VK_T,
 						KeyEvent.VK_ADD, KeyEvent.VK_SUBTRACT, KeyEvent.VK_W },
-				{ KeyEvent.VK_K, KeyEvent.VK_K, KeyEvent.VK_J },
+				{ KeyEvent.VK_K, KeyEvent.VK_K, KeyEvent.VK_J, KeyEvent.VK_1 },
 				{ KeyEvent.VK_H, KeyEvent.VK_PLUS, KeyEvent.VK_MINUS },
 				{ KeyEvent.VK_H, KeyEvent.VK_H } };
 		// These modifiers are combined with the key codes to chose a menu item that is
@@ -128,7 +128,7 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 						ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, 0, 0 },
 				{ 0, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK,
 						ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK },
-				{ 0, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK },
+				{ 0, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK },
 				{ 0, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK },
 				{ 0, ActionEvent.CTRL_MASK } };
 
@@ -352,8 +352,8 @@ public class BinPanel extends JPanel implements ActionListener, ItemListener, Ca
 			grid.add(this.viewCBox[i], constraints);
 		}
 
-		// Default to shift-jis
-		this.viewCBox[1].setSelectedIndex(13);
+		// Default to UTF-16
+		this.viewCBox[1].setSelectedIndex(12);
 		constraints.weightx = 1.0D;
 		++constraints.gridx;
 		this.JTView.setPreferredSize(
