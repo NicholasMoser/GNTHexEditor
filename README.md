@@ -1,5 +1,7 @@
-GNT Hex Editor
-=========
+# GNT Hex Editor
+
+**Note**  
+*This project was created to help translate GNT4 and likely has no use outside of that. This project is no longer supported.*
 
 This project builds upon [Valentyn Kolesnikov's Hex Editor](https://github.com/javadev/hexeditor).
 It is designed to be used as a modding tool for Naruto GNT files, particularly GNT4.
